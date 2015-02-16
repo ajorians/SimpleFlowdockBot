@@ -1,0 +1,27 @@
+#ifndef FLOWAPILIBRARY_H
+#define FLOWAPILIBRARY_H
+
+#include <string>
+#include "Library.h"
+#include "FlowdockAPI.h"
+
+class FlowAPILibrary
+{
+public:
+   static FlowAPILibrary& instance();
+
+   bool Create(FlowdockAPI* ppFlow);
+   bool Destroy(FlowdockAPI* ppFlow);
+   bool StartListening(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
+   bool Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strPoster);
+   std::string Listen(FlowdockAPI pFlow, int& nThreadID);
+
+protected:
+   RLibrary m_lib;
+
+private:
+   FlowAPILibrary();
+   ~FlowAPILibrary();
+};
+
+#endif
