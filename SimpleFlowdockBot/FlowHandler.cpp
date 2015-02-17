@@ -4,11 +4,21 @@
 #include "LinkFixer.h"
 #include "ScreencastLink.h"
 #include "VSID.h"
+#include <exception>
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
-   : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword)
+   : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
+   m_SaysRemaining(10)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
+
+   //Important such that I don't see my messages as new messages :)
+   if( !FlowAPILibrary::instance().SetDefaults(m_pFlowdock, m_strUsername, m_strPassword) )
+      throw std::exception("Unable to set defaults username/password");
+
+   if( !FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword) )
+      throw std::exception("Failed to get user's list");
+
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
 }
 
@@ -25,13 +35,12 @@ void FlowHandler::HandleMessages()
    if( strMessage.empty() )
       return;
 
-   //if message see if anything to say
-   {
-      std::vector<std::string> arrstrLinks = LinkFixerHandler::LinksFromMessage(strMessage);
-      for(std::vector<std::string>::size_type i=0; i<arrstrLinks.size(); i++)
-         FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, LinkFixerHandler::GetCorrectedLink(arrstrLinks[i]), "linkfixer");
-   }
+   if( m_SaysRemaining<= 0 )
+      return;
 
+   bool bSaidSomething = false;
+
+   //if message see if anything to say
    {
       ScreencastLinkHandler sc;
       if( sc.HasSCLink(strMessage) )
@@ -40,11 +49,13 @@ void FlowHandler::HandleMessages()
          for(std::vector<std::string>::size_type i=0; i<astrLinks.size(); i++)
          {
             std::string strImg = sc.GetImageURL(astrLinks[i]);
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strImg, "sc.com");
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strImg, "");
+            bSaidSomething = true;
          }
       }
    }
 
+   if( !bSaidSomething )
    {
       if( VSIDHandler::HasVSID(strMessage) )
       {
@@ -55,10 +66,30 @@ void FlowHandler::HandleMessages()
             std::string strResponse = vsid.GetResponseForVSID(arrVSIDs[i]);
 
             if( strResponse.length() > 0 )
+            {
                FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "VSID");
+               bSaidSomething = true;
+            }
          }
       }
    }
+
+   if( !bSaidSomething )
+   {
+      std::vector<std::string> arrstrLinks = LinkFixerHandler::LinksFromMessage(strMessage);
+      for(std::vector<std::string>::size_type i=0; i<arrstrLinks.size(); i++)
+      {
+         std::string strCorrected = LinkFixerHandler::GetCorrectedLink(arrstrLinks[i]);
+         if( strCorrected != arrstrLinks[i] )
+         {
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strCorrected, "linkfixer");
+            bSaidSomething = true;
+         }
+      }
+   }
+
+   if( bSaidSomething )
+      m_SaysRemaining--;
 
 }
 

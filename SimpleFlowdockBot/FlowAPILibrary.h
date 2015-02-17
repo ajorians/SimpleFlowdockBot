@@ -12,8 +12,10 @@ public:
 
    bool Create(FlowdockAPI* ppFlow);
    bool Destroy(FlowdockAPI* ppFlow);
+   bool SetDefaults(FlowdockAPI pFlow, const std::string& strUsername, const std::string& strPassword);
+   bool GetUserList(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
    bool StartListening(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
-   bool Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strPoster);
+   bool Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strTags);
    std::string Listen(FlowdockAPI pFlow, int& nThreadID);
 
 protected:

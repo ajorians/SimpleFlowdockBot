@@ -18,6 +18,9 @@ protected:
    std::string m_strFlow;
    std::string m_strUsername;
    std::string m_strPassword;
+
+   //This is a limitation so it isn't too chatty :)
+   int m_SaysRemaining;
 };
 
 #endif

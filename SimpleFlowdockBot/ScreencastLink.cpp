@@ -106,7 +106,7 @@ std::vector<std::string> ScreencastLinkHandler::SCLinksFromMessage(const std::st
 		int nStartShortID = strLower.find("screencast.com/t/", nStart);
 		if( nStartShortID == std::string::npos )
                 {
-                        cout << "not found screencast.com/t/ in: " << strLower << endl;
+                        //cout << "not found screencast.com/t/ in: " << strLower << endl;
 			break;
                 }
 
