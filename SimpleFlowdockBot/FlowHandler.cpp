@@ -14,10 +14,10 @@ FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, 
 
    //Important such that I don't see my messages as new messages :)
    if( !FlowAPILibrary::instance().SetDefaults(m_pFlowdock, m_strUsername, m_strPassword) )
-      throw std::exception("Unable to set defaults username/password");
+      throw std::runtime_error("Unable to set defaults username/password");
 
    if( !FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword) )
-      throw std::exception("Failed to get user's list");
+      throw std::runtime_error("Failed to get user's list");
 
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
 }
