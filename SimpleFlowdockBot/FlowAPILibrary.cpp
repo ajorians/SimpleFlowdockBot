@@ -1,6 +1,14 @@
 #include "FlowAPILibrary.h"
 #include <cassert>
 
+#ifdef __linux__ 
+#include <limits.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <stdio.h>
+#endif
+
 FlowAPILibrary& FlowAPILibrary::instance()
 {
    static FlowAPILibrary inst;
