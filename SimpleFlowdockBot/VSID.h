@@ -2,6 +2,7 @@
 #define FlowdockBOT_VSIDHANDLER_H
 
 #include <curl/curl.h>
+#include <string>
 #include <vector>
 
 class VSIDHandler
