@@ -144,7 +144,7 @@ FlowAPILibrary::FlowAPILibrary()
    strEXE = strEXE.substr(0, strEXE.rfind('/'));//EXE folder
    strEXE = strEXE.substr(0, strEXE.rfind('/'));//Build folder
 
-   strPath = strEXE + "/SimpleFlowdockBot/libMultiFlowdockAPI.so";
+   strPath = strEXE + "/FlowdockAPI/FlowdockAPI/libFlowdockAPI.so";
 
 #endif
    m_lib.SetLibrary(strPath);
