@@ -5,6 +5,7 @@
 #include "ScreencastLink.h"
 #include "VSID.h"
 #include <exception>
+#include <stdexcept>
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
