@@ -1,6 +1,7 @@
 #ifndef FLOWHANDLER_H
 #define FLOWHANDLER_H
 
+#include <pthread.h>
 #include <string>
 #include "FlowdockAPI.h"
 
@@ -10,6 +11,7 @@ public:
    FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
    ~FlowHandler();
 
+   static void* HandleThread(void* ptr);
    void HandleMessages();
 
 protected:
@@ -21,6 +23,10 @@ protected:
 
    //This is a limitation so it isn't too chatty :)
    int m_SaysRemaining;
+
+   bool m_bExit;
+
+   pthread_t m_thread;
 };
 
 #endif

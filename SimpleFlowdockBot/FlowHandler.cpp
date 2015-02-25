@@ -7,9 +7,18 @@
 #include <exception>
 #include <stdexcept>
 
+#ifndef WIN32
+#include <string.h>//?? TODO: Find out why including this?
+#include <unistd.h>//For usleep
+#endif
+
+#ifdef WIN32
+#include <windows.h>//For Sleep
+#endif
+
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
-   m_SaysRemaining(10)
+   m_SaysRemaining(10), m_bExit(false)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
 
@@ -21,11 +30,32 @@ FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, 
       throw std::runtime_error("Failed to get user's list");
 
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
+
+   m_thread = pthread_self();
+   int iRet = pthread_create( &m_thread, NULL, FlowHandler::HandleThread, (void*)this);
 }
 
 FlowHandler::~FlowHandler()
 {
+   m_bExit = true;
+   pthread_join( m_thread, NULL);
    FlowAPILibrary::instance().Destroy(&m_pFlowdock);
+}
+
+void* FlowHandler::HandleThread(void* ptr)
+{
+   FlowHandler* pThis = (FlowHandler*)ptr;
+   while(!pThis->m_bExit)
+   {
+      pThis->HandleMessages();
+#ifdef _WIN32
+      Sleep(100);//1/10 second
+#else
+      usleep(100*1000);
+#endif
+   }
+
+   return NULL;
 }
 
 void FlowHandler::HandleMessages()
