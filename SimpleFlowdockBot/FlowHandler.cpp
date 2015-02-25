@@ -86,7 +86,7 @@ void FlowHandler::HandleMessages()
       }
    }
 
-   if( !bSaidSomething )
+   /*if( !bSaidSomething )
    {
       if( VSIDHandler::HasVSID(strMessage) )
       {
@@ -103,7 +103,7 @@ void FlowHandler::HandleMessages()
             }
          }
       }
-   }
+   }*/
 
    if( !bSaidSomething )
    {
