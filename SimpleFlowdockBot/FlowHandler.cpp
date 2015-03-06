@@ -3,6 +3,7 @@
 
 #include "LinkFixer.h"
 #include "ScreencastLink.h"
+#include "PullRequestTitle.h"
 #include "VSID.h"
 #include <exception>
 #include <stdexcept>
@@ -81,6 +82,21 @@ void FlowHandler::HandleMessages()
          {
             std::string strImg = sc.GetImageURL(astrLinks[i]);
             FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strImg, "");
+            bSaidSomething = true;
+         }
+      }
+   }
+
+   if( !bSaidSomething )
+   {
+      PullRequestTitleHandler pr;
+      if( pr.HasPR(strMessage) )
+      {
+         std::vector<std::string> astrPRs = pr.PRsFromMessage(strMessage);
+         for(std::vector<std::string>::size_type i=0; i<astrPRs.size(); i++)
+         {
+            std::string strTitle = pr.GetPRTitle(astrPRs[i]);
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strTitle, "PR-Title");
             bSaidSomething = true;
          }
       }
