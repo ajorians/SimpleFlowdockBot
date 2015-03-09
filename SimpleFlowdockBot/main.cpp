@@ -21,17 +21,19 @@ int main(int argc, char *argv[])
 
    FlowdockBot bot;
    bot.AddFlow("aj-org",      "main",              "ajorians@gmail.com",      "1Smajjmd");
-   /*bot.AddFlow("techsmith",   "camtasia-windows",  "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "camtasia-windows",  "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "cory-test",         "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "development",       "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "snagit-windows",    "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "ux-overhaul",       "a.orians@techsmith.com",  "1Smajjmd");
-   bot.AddFlow("techsmith",   "january-release",   "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "c-p-i",             "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "shared-library",    "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "git-initiative",    "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "main",              "a.orians@techsmith.com",  "1Smajjmd");
-   bot.AddFlow("techsmith",   "smartplayer",       "a.orians@techsmith.com",  "1Smajjmd");*/
+   bot.AddFlow("techsmith",   "smartplayer",       "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "identity",          "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "uxoverhaul-camtasia-win","a.orians@techsmith.com",  "1Smajjmd");
+
    int n = 0;
    while(true)
    {
