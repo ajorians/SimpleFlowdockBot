@@ -161,9 +161,11 @@ size_t PullRequestTitleHandler::write_callback(void *ptr, size_t size, size_t nm
 	return nmemb;
 }
 
-std::string PullRequestTitleHandler::GetPRTitle(const std::string& strURL)
+std::pair<std::string, std::string> PullRequestTitleHandler::GetPRTitleAndName(const std::string& strURL)
 {
    std::string strAddress = strURL;
+
+   std::pair<std::string, std::string> pairRet;
 
    curl_easy_setopt(m_pCurl, CURLOPT_URL, strAddress.c_str());
 
@@ -171,23 +173,48 @@ std::string PullRequestTitleHandler::GetPRTitle(const std::string& strURL)
 
    m_resLast = curl_easy_perform(m_pCurl);
 
-   int nStart = m_strWrite.find("\"title\":");
-   if( nStart == std::string::npos )
-      return std::string();
+   //Get the PR title
+   {
+      int nStart = m_strWrite.find("\"title\":");
+      if( nStart == std::string::npos )
+         return pairRet;
 
-   nStart = nStart + strlen("\"title\":");
+      nStart = nStart + strlen("\"title\":");
 
-   nStart = m_strWrite.find("\"", nStart);
-   if( nStart == std::string::npos )
-      return std::string();
+      nStart = m_strWrite.find("\"", nStart);
+      if( nStart == std::string::npos )
+         return pairRet;
 
-   nStart += strlen("\"");
+      nStart += strlen("\"");
 
-   int nEnd = m_strWrite.find("\"", nStart);
-   if( nEnd == std::string::npos || nEnd <= nStart )
-      return std::string();
+      int nEnd = m_strWrite.find("\"", nStart);
+      if( nEnd == std::string::npos || nEnd <= nStart )
+         return pairRet;
 
-   std::string strRet = m_strWrite.substr(nStart, nEnd-nStart);
-   return strRet;
+      pairRet.first = m_strWrite.substr(nStart, nEnd-nStart);
+   }
+
+   //Get the Repo name:
+   {
+      int nStart = m_strWrite.find("\"name\":");
+      if( nStart == std::string::npos )
+         return pairRet;
+
+      nStart = nStart + strlen("\"name\":");
+
+      nStart = m_strWrite.find("\"", nStart);
+      if( nStart == std::string::npos )
+         return pairRet;
+
+      nStart += strlen("\"");
+
+      int nEnd = m_strWrite.find("\"", nStart);
+      if( nEnd == std::string::npos || nEnd <= nStart )
+         return pairRet;
+
+      pairRet.second = m_strWrite.substr(nStart, nEnd-nStart);
+   }
+
+   return pairRet;
 }
 

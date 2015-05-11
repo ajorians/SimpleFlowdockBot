@@ -14,7 +14,7 @@ public:
    static bool HasPR(const std::string& strMessage);
    static std::vector<std::string> PRsFromMessage(const std::string& strMessage);
 
-   std::string GetPRTitle(const std::string& strURL);
+   std::pair<std::string, std::string> GetPRTitleAndName(const std::string& strURL);
 
 protected:
 	static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *stream);

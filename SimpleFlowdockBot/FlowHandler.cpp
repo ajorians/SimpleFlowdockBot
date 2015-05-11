@@ -5,6 +5,7 @@
 #include "ScreencastLink.h"
 #include "PullRequestTitle.h"
 #include "VSID.h"
+#include "WhosIn.h"
 #include <exception>
 #include <stdexcept>
 
@@ -62,7 +63,8 @@ void* FlowHandler::HandleThread(void* ptr)
 void FlowHandler::HandleMessages()
 {
    int nThreadID = 0;
-   std::string strMessage = FlowAPILibrary::instance().Listen(m_pFlowdock, nThreadID);
+   std::string strUserName;
+   std::string strMessage = FlowAPILibrary::instance().Listen(m_pFlowdock, strUserName, nThreadID);
 
    if( strMessage.empty() )
       return;
@@ -95,8 +97,12 @@ void FlowHandler::HandleMessages()
          std::vector<std::string> astrPRs = pr.PRsFromMessage(strMessage);
          for(std::vector<std::string>::size_type i=0; i<astrPRs.size(); i++)
          {
-            std::string strTitle = pr.GetPRTitle(astrPRs[i]);
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strTitle, "PR-Title");
+            std::pair<std::string, std::string> pairTitleAndRepo
+               = pr.GetPRTitleAndName(astrPRs[i]);
+
+            std::string strMessage = "[" + pairTitleAndRepo.second + "]: " + pairTitleAndRepo.first;
+
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strMessage, "PR-Title");
             bSaidSomething = true;
          }
       }
@@ -130,6 +136,19 @@ void FlowHandler::HandleMessages()
          if( strCorrected != arrstrLinks[i] )
          {
             FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strCorrected, "linkfixer");
+            bSaidSomething = true;
+         }
+      }
+   }
+
+   if( !bSaidSomething )
+   {
+      if( WhosIn::IsWhosInMessage(strMessage) )
+      {
+         std::string strResponse = WhosIn::HandleMessage(strMessage, strUserName);
+         if( !strResponse.empty() )
+         {
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "");
             bSaidSomething = true;
          }
       }

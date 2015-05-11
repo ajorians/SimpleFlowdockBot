@@ -81,7 +81,7 @@ bool FlowAPILibrary::Say(FlowdockAPI pFlow, const std::string& strOrg, const std
    return true;
 }
 
-std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, int& nThreadID)
+std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, std::string& strUser, int& nThreadID)
 {
    std::string strRet;
    FlowdockGetListenMessageCountFunc GetListenMessagesCount = (FlowdockGetListenMessageCountFunc)m_lib.Resolve("FlowdockGetListenMessageCount");
@@ -113,6 +113,42 @@ std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, int& nThreadID)
       GetMessage(pFlow, 0, pstrMessage, nSizeOfMessage);
 
       std::string strMessage(pstrMessage);
+
+      //GetUser
+      FlowdockGetMessageUserFunc GetUsersName = (FlowdockGetMessageUserFunc)m_lib.Resolve("FlowdockGetMessageUser");
+      if( GetUsersName )
+      {
+         char* pstrUser = NULL;
+         int nSizeOfUser = 0;
+         GetUsersName(pFlow, 0, pstrUser, nSizeOfUser);
+
+         pstrUser = new char[nSizeOfUser + 1];
+
+         GetUsersName(pFlow, 0, pstrUser, nSizeOfUser);
+
+         std::string strUserName( pstrUser );
+         strUser = strUserName;
+
+         FlowdockGetNicknameForUserFunc GetNick = (FlowdockGetNicknameForUserFunc)m_lib.Resolve("FlowdockGetNicknameForUser");
+         if( GetNick )
+         {
+            char* pstrNick = NULL;
+            int nSizeOfNick = 0;
+
+            //Hopefully works :)
+            if( 0 != GetNick(pFlow, (char*)strUserName.c_str(), pstrNick, nSizeOfNick) )
+            {
+               pstrNick = new char[nSizeOfNick + 1];
+
+               GetNick(pFlow, (char*)strUserName.c_str(), pstrNick, nSizeOfNick);
+
+               std::string strNick( pstrNick );
+
+               if( !strNick.empty() )
+                  strUser = strNick;
+            }
+         }
+      }
 
       FlowdockGetMessageIDFunc GetID = (FlowdockGetMessageIDFunc)m_lib.Resolve("FlowdockGetMessageID");
       if( !GetMessage )
