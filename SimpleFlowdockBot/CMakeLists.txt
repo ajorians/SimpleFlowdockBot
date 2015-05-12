@@ -30,10 +30,10 @@ ELSEIF(UNIX)
    SET( OSSPECIFIC_LIBRARIES pthread dl )
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(SimpleFlowdockBot curl ${OSSPECIFIC_LIBRARIES} )
+TARGET_LINK_LIBRARIES(SimpleFlowdockBot curl JSONLib ${OSSPECIFIC_LIBRARIES} )
 INCLUDE_DIRECTORIES( ${PROJECT_BINARY_DIR} )
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
-INCLUDE_DIRECTORIES(SimpleFlowdockBot .. ../FlowdockAPI/curl-7.19.2/include ../FlowdockAPI/FlowdockAPI ../pthread-w32/include)
+INCLUDE_DIRECTORIES(SimpleFlowdockBot .. ../FlowdockAPI/curl-7.19.2/include ../FlowdockAPI/FlowdockAPI ../FlowdockAPI/JSONLib ../pthread-w32/include)
 
 IF(WIN32)
    SET_TARGET_PROPERTIES(SimpleFlowdockBot PROPERTIES VS_KEYWORD Qt4VSv1.0)

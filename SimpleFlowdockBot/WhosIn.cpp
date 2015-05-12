@@ -1,5 +1,7 @@
 #include "WhosIn.h"
 #include <string>
+#include <fstream>
+#include "JSONLib/JSON.h"
 using namespace std;
 
 namespace {
@@ -35,6 +37,12 @@ namespace {
          return false;
 
       return true;
+   }
+
+   std::string fileToString(std::string const& name) {
+      std::ifstream in(name.c_str());
+      return std::string(std::istreambuf_iterator<char>(in),
+         std::istreambuf_iterator<char>());
    }
 }
 
@@ -85,7 +93,7 @@ std::string WhosIn::HandleMessage(const std::string& strMessage, const std::stri
          {
             return WhosIn::instance().GetInOuts(strTag);
          }
-         else if( WhosIn::instance().AddTag(strTag) ) {
+         else if( WhosIn::instance().AddTag(strTag, false) ) {
             std::string strMessage = "Who's in for: \"" + strTag + "\"\n";
             strMessage += ">> Type: In " + strTag + "\n";
             strMessage += "   To be in! :smiley:\n";
@@ -104,7 +112,7 @@ std::string WhosIn::HandleMessage(const std::string& strMessage, const std::stri
          std::string strTag = strMessage.substr(n+1);
          if( WhosIn::instance().DoesTagExist(strTag) )
          {
-            if( WhosIn::instance().AddPerson(strTag, strUsername, In) ) {
+            if( WhosIn::instance().AddPerson(strTag, strUsername, In, false) ) {
                return "You (" + strUsername + ") are added as In";
             }
             else {
@@ -122,7 +130,7 @@ std::string WhosIn::HandleMessage(const std::string& strMessage, const std::stri
          std::string strTag = strMessage.substr(n+1);
          if( WhosIn::instance().DoesTagExist(strTag) )
          {
-            if( WhosIn::instance().AddPerson(strTag, strUsername, Out) ) {
+            if( WhosIn::instance().AddPerson(strTag, strUsername, Out, false) ) {
                return "You (" + strUsername + ") are added as Out";
             }
             else {
@@ -152,6 +160,67 @@ WhosIn& WhosIn::instance()
    return inst;
 }
 
+WhosIn::WhosIn()
+{
+   Load();
+}
+
+void WhosIn::Load()
+{
+   JSON* pJSON = JSON::Parse(fileToString("whosin.txt"));
+   if( pJSON )
+   {
+      JSON* pRoot = pJSON->Child("Tags");
+      if( pRoot )
+      {
+         JSONArray arrTags = pRoot->AsArray();
+         for(JSONArray::size_type i=0; i<arrTags.size(); i++)
+         {
+            JSONObjects Tag = arrTags[i]->AsObject();
+            AddTag(Tag["Tag"]->AsString(), true);
+
+            JSONArray arrPersons = Tag["Persons"]->AsArray();
+            for(JSONArray::size_type j=0; j<arrPersons.size(); j++)
+            {
+               JSONObjects Person = arrPersons[j]->AsObject();
+               int n = (int)Person["In"]->AsNumber();
+               AddPerson(Tag["Tag"]->AsString(), Person["Name"]->AsString(), (InOrOut)n, true);
+            }
+         }
+      }
+   }
+}
+
+void WhosIn::Persist()
+{
+   JSONArray arrTags;
+   for(std::vector<WhosIn::Tag>::size_type i=0; i<m_aTags.size(); i++)
+   {
+      JSONObjects Tag;
+      Tag["Tag"] = new JSON(m_aTags[i].m_strTag);
+      JSONArray arrPersons;
+      for(std::vector<WhosIn::Person>::size_type j=0; j<m_aTags[i].m_aPersons.size(); j++)
+      {
+         JSONObjects objs;
+         objs["Name"] = new JSON(m_aTags[i].m_aPersons[j].strName);
+         objs["In"] = new JSON(m_aTags[i].m_aPersons[j].eIn);
+
+         arrPersons.push_back(new JSON(objs));
+      }
+      Tag["Persons"] = new JSON(arrPersons);
+      arrTags.push_back(new JSON(Tag));
+   }
+
+   JSONObjects Tags;
+   Tags["Tags"] = new JSON(arrTags);
+
+   JSON json(Tags);
+
+   fstream fs("whosin.txt", ios::out);
+   std::string str = json.Stringify();
+   fs.write(str.c_str(), str.length());
+}
+
 bool WhosIn::DoesTagExist(const std::string& strTag) const
 {
    for(std::vector<WhosIn::Tag>::size_type i=0; i<m_aTags.size(); i++)
@@ -162,7 +231,7 @@ bool WhosIn::DoesTagExist(const std::string& strTag) const
    return false;
 }
 
-bool WhosIn::AddTag(const std::string& strTag)
+bool WhosIn::AddTag(const std::string& strTag, bool silent)
 {
    if( DoesTagExist(strTag) )
       return false;
@@ -170,10 +239,13 @@ bool WhosIn::AddTag(const std::string& strTag)
    WhosIn::Tag tag;
    tag.m_strTag = strTag;
    m_aTags.push_back(tag);
+
+   if( !silent )
+      Persist();
    return true;
 }
 
-bool WhosIn::AddPerson(const std::string& strTag, const std::string& strPerson, InOrOut eIn)
+bool WhosIn::AddPerson(const std::string& strTag, const std::string& strPerson, InOrOut eIn, bool silent)
 {
    if( !DoesTagExist(strTag) )
       return false;
@@ -187,6 +259,9 @@ bool WhosIn::AddPerson(const std::string& strTag, const std::string& strPerson, 
          p.eIn = eIn;
 
          m_aTags[i].m_aPersons.push_back(p);
+
+         if( !silent )
+            Persist();
          return true;
       }
    }

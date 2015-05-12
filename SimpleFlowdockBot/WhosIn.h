@@ -19,9 +19,14 @@ public:
 
    static WhosIn& instance();
 
+   WhosIn();
+
+   void Load();
+   void Persist();
+
    bool DoesTagExist(const std::string& strTag) const;
-   bool AddTag(const std::string& strTag);
-   bool AddPerson(const std::string& strTag, const std::string& strPerson, InOrOut eIn);
+   bool AddTag(const std::string& strTag, bool silent);
+   bool AddPerson(const std::string& strTag, const std::string& strPerson, InOrOut eIn, bool silent);
    std::string GetInOuts(const std::string& strTag) const;
 
 private:
