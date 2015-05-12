@@ -20,7 +20,7 @@
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
-   m_SaysRemaining(10), m_bExit(false)
+   m_SaysRemaining(30), m_bExit(false)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
 
