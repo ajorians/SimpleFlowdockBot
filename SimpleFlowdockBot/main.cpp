@@ -33,9 +33,12 @@ int main(int argc, char *argv[])
    bot.AddFlow("techsmith",   "smartplayer",       "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "identity",          "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "uxoverhaul-camtasia-win","a.orians@techsmith.com",  "1Smajjmd");
-   bot.AddFlow("techsmith",   "screencast-pro-desktop","a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "macdevroom",         "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "camtasia-mac",       "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "volleyball",         "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "camtasia-program",   "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "cloud-services",     "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "relay",              "a.orians@techsmith.com",  "1Smajjmd");
 
    int n = 0;
    while(true)
