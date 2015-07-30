@@ -71,13 +71,13 @@ bool FlowAPILibrary::StartListening(FlowdockAPI pFlow, const std::string& strOrg
    return true;
 }
 
-bool FlowAPILibrary::Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strTags)
+bool FlowAPILibrary::Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strTags, const std::string& strName /*= "Build_bot"*/)
 {
    FlowdockSayFunc Say = (FlowdockSayFunc)m_lib.Resolve("FlowdockSay");
    if( !Say )
       return false;
 
-   Say(pFlow, strOrg.c_str(), strFlow.c_str(), strUsername.c_str(), strPassword.c_str(), strMessage.c_str(), nThreadID, strTags.c_str(), "Build_bot");
+   Say(pFlow, strOrg.c_str(), strFlow.c_str(), strUsername.c_str(), strPassword.c_str(), strMessage.c_str(), nThreadID, strTags.c_str(), strName.c_str());
    return true;
 }
 

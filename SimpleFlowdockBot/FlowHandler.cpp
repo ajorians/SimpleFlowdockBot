@@ -6,6 +6,7 @@
 #include "PullRequestTitle.h"
 #include "VSID.h"
 #include "WhosIn.h"
+#include "TyJones.h"
 #include <exception>
 #include <stdexcept>
 
@@ -20,7 +21,7 @@
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
-   m_SaysRemaining(30), m_bExit(false)
+   m_SaysRemaining(40), m_bExit(false)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
 
@@ -149,6 +150,19 @@ void FlowHandler::HandleMessages()
          if( !strResponse.empty() )
          {
             FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "");
+            bSaidSomething = true;
+         }
+      }
+   }
+
+   if( !bSaidSomething )
+   {
+      if( TyJones::HasTYMessage(strMessage) )
+      {
+         std::string strResponse = TyJones::HandleMessage(strMessage, strUserName);
+         if( !strResponse.empty() )
+         {
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "", "Ty-Jones");
             bSaidSomething = true;
          }
       }
