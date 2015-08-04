@@ -9,9 +9,9 @@ FlowdockBot::~FlowdockBot()
    }
 }
 
-void FlowdockBot::AddFlow(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
+void FlowdockBot::AddFlow(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nReplyingFlags /*= RESPONDINGS_ALL*/)
 {
-   m_apHandlers.push_back(new FlowHandler(strOrg, strFlow, strUsername, strPassword));
+   m_apHandlers.push_back(new FlowHandler(strOrg, strFlow, strUsername, strPassword, nReplyingFlags));
 }
 
 void FlowdockBot::HandleMessages()

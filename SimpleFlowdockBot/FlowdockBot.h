@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "FlowRespondings.h"
+
 class FlowHandler;
 
 class FlowdockBot
@@ -11,7 +13,7 @@ class FlowdockBot
 public:
    ~FlowdockBot();
 
-   void AddFlow(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
+   void AddFlow(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nReplyingFlags = RESPONDINGS_ALL);
    void HandleMessages();
 
 protected:

@@ -19,9 +19,9 @@
 #include <windows.h>//For Sleep
 #endif
 
-FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
+FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
-   m_SaysRemaining(40), m_bExit(false)
+   m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
 
@@ -77,20 +77,23 @@ void FlowHandler::HandleMessages()
 
    //if message see if anything to say
    {
-      ScreencastLinkHandler sc;
-      if( sc.HasSCLink(strMessage) )
+      if ((m_nFlowRespondingsFlags & SCImages) == SCImages)
       {
-         std::vector<std::string> astrLinks = sc.SCLinksFromMessage(strMessage);
-         for(std::vector<std::string>::size_type i=0; i<astrLinks.size(); i++)
+         ScreencastLinkHandler sc;
+         if (sc.HasSCLink(strMessage))
          {
-            std::string strImg = sc.GetImageURL(astrLinks[i]);
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strImg, "");
-            bSaidSomething = true;
+            std::vector<std::string> astrLinks = sc.SCLinksFromMessage(strMessage);
+            for (std::vector<std::string>::size_type i = 0; i < astrLinks.size(); i++)
+            {
+               std::string strImg = sc.GetImageURL(astrLinks[i]);
+               FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strImg, "");
+               bSaidSomething = true;
+            }
          }
       }
    }
 
-   if( !bSaidSomething )
+   if( !bSaidSomething && (m_nFlowRespondingsFlags&PRTitles)==PRTitles )
    {
       PullRequestTitleHandler pr;
       if( pr.HasPR(strMessage) )
@@ -128,7 +131,7 @@ void FlowHandler::HandleMessages()
       }
    }*/
 
-   if( !bSaidSomething )
+   if( !bSaidSomething && (m_nFlowRespondingsFlags&LinkFixing) == LinkFixing)
    {
       std::vector<std::string> arrstrLinks = LinkFixerHandler::LinksFromMessage(strMessage);
       for(std::vector<std::string>::size_type i=0; i<arrstrLinks.size(); i++)
@@ -142,7 +145,7 @@ void FlowHandler::HandleMessages()
       }
    }
 
-   if( !bSaidSomething )
+   if( !bSaidSomething && (m_nFlowRespondingsFlags&WhosIn) == WhosIn)
    {
       if( WhosIn::IsWhosInMessage(strMessage) )
       {
@@ -155,7 +158,7 @@ void FlowHandler::HandleMessages()
       }
    }
 
-   if( !bSaidSomething )
+   if( !bSaidSomething && (m_nFlowRespondingsFlags&TY) == TY)
    {
       if( TyJones::HasTYMessage(strMessage) )
       {

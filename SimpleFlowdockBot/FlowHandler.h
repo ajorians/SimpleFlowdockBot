@@ -5,10 +5,12 @@
 #include <string>
 #include "FlowdockAPI.h"
 
+#include "FlowRespondings.h"
+
 class FlowHandler
 {
 public:
-   FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
+   FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags = RESPONDINGS_ALL);
    ~FlowHandler();
 
    static void* HandleThread(void* ptr);
@@ -25,6 +27,8 @@ protected:
    int m_SaysRemaining;
 
    bool m_bExit;
+
+   int m_nFlowRespondingsFlags;
 
    pthread_t m_thread;
 };

@@ -12,6 +12,7 @@
 #endif
 
 #include "FlowdockBot.h"
+#include "FlowRespondings.h"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
    bot.AddFlow("techsmith",   "camtasia-mac",       "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "volleyball",         "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "camtasia-program",   "a.orians@techsmith.com",  "1Smajjmd");
-   bot.AddFlow("techsmith",   "cloud-services",     "a.orians@techsmith.com",  "1Smajjmd");
+   bot.AddFlow("techsmith",   "cloud-services",     "a.orians@techsmith.com",  "1Smajjmd", RESPONDINGS_ALL & ~SCImages);
    bot.AddFlow("techsmith",   "relay",              "a.orians@techsmith.com",  "1Smajjmd");
 
    int n = 0;
