@@ -187,9 +187,23 @@ std::pair<std::string, std::string> PullRequestTitleHandler::GetPRTitleAndName(c
 
       nStart += strlen("\"");
 
-      int nEnd = m_strWrite.find("\"", nStart);
-      if( nEnd == std::string::npos || nEnd <= nStart )
-         return pairRet;
+      int i = 0;
+      for ( ; i < 1000; i++ )
+      {
+         if ( ( i + nStart ) >= m_strWrite.length() )
+            break;
+
+         if ( m_strWrite[i + nStart] == '"' )
+         {
+            if ( i > 0 && m_strWrite[i + nStart - 1] == '\\' )
+               continue;
+
+            //Reached end
+            break;
+         }
+      }
+
+      int nEnd = nStart + i;
 
       pairRet.first = m_strWrite.substr(nStart, nEnd-nStart);
    }
