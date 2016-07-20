@@ -81,6 +81,16 @@ bool FlowAPILibrary::Say(FlowdockAPI pFlow, const std::string& strOrg, const std
    return true;
 }
 
+bool FlowAPILibrary::Tag( FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strTags )
+{
+   FlowdockTagFunc Tag = (FlowdockTagFunc)m_lib.Resolve( "FlowdockTag" );
+   if ( !Tag )
+      return false;
+
+   Tag( pFlow, strOrg.c_str(), strFlow.c_str(), strUsername.c_str(), strPassword.c_str(), nThreadID, strTags.c_str() );
+   return true;
+}
+
 std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, std::string& strUser, int& nThreadID)
 {
    std::string strRet;

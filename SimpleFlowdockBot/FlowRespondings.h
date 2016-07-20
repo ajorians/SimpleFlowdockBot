@@ -7,5 +7,6 @@ enum FlowResponsings
    LinkFixing  = 0x1 << 2,
    TY          = 0x1 << 3,
    WhosIn      = 0x1 << 4,
+   YoloTag     = 0x1 << 5,
    RESPONDINGS_ALL = 0xFFFFFFFF
 };
