@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
    cout << "Starting up FlowdockBot" << endl;
 
    FlowdockBot bot;
-   bot.AddFlow("aj-org",      "main",              "ajorians@gmail.com",      "1Smajjmd");
-   /*bot.AddFlow("techsmith",   "camtasia-windows",  "a.orians@techsmith.com",  "1Smajjmd");
+   //bot.AddFlow("aj-org",      "main",              "ajorians@gmail.com",      "1Smajjmd");
+   bot.AddFlow("techsmith",   "camtasia-windows",  "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "cory-test",         "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "development",       "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "snagit-windows",    "a.orians@techsmith.com",  "1Smajjmd");
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
    bot.AddFlow("techsmith",   "camtasiawincaptions", "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "camtasia-animations", "a.orians@techsmith.com",  "1Smajjmd");
    bot.AddFlow("techsmith",   "camtasia-installer", "a.orians@techsmith.com",  "1Smajjmd");
-   bot.AddFlow("techsmith",   "identity-core",     "a.orians@techsmith.com",  "1Smajjmd", RESPONDINGS_ALL & ~SCImages);*/
+   bot.AddFlow("techsmith",   "identity-core",     "a.orians@techsmith.com",  "1Smajjmd", RESPONDINGS_ALL & ~SCImages);
 
    int n = 0;
    while(true)

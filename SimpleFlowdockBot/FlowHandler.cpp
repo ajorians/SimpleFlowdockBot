@@ -114,7 +114,7 @@ void FlowHandler::HandleMessages()
 
    if ( !bSaidSomething && ( m_nFlowRespondingsFlags&YoloTag ) == YoloTag )
    {
-      if ( strUserName.find( "Andrew" ) != std::string::npos )
+      if ( strUserName.find( "a.novak" ) != std::string::npos )
       {
          FlowAPILibrary::instance().Tag( m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, "YOLO" );
          bSaidSomething = true;
