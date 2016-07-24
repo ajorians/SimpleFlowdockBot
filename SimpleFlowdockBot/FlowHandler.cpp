@@ -167,7 +167,7 @@ void FlowHandler::HandleMessages()
       }
    }
 
-   if( !bSaidSomething && (m_nFlowRespondingsFlags&TY) == TY)
+   /*if( !bSaidSomething && (m_nFlowRespondingsFlags&TY) == TY)
    {
       if( TyJones::HasTYMessage(strMessage) )
       {
@@ -178,7 +178,7 @@ void FlowHandler::HandleMessages()
             bSaidSomething = true;
          }
       }
-   }
+   }*/
 
    if( bSaidSomething )
       m_SaysRemaining--;
