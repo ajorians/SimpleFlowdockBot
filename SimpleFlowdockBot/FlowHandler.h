@@ -1,6 +1,7 @@
 #ifndef FLOWHANDLER_H
 #define FLOWHANDLER_H
 
+#define HAVE_STRUCT_TIMESPEC
 #include <pthread.h>
 #include <string>
 #include "FlowdockAPI.h"

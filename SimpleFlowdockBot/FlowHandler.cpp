@@ -4,6 +4,7 @@
 #include "LinkFixer.h"
 #include "ScreencastLink.h"
 #include "PullRequestTitle.h"
+#include "GitIssueTitle.h"
 #include "VSID.h"
 #include "WhosIn.h"
 #include "TyJones.h"
@@ -107,6 +108,33 @@ void FlowHandler::HandleMessages()
             std::string strMessage = "[" + pairTitleAndRepo.second + "]: " + pairTitleAndRepo.first;
 
             FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strMessage, "PR-Title");
+            bSaidSomething = true;
+         }
+      }
+
+      GitIssueTitleHandler issue;
+      if ( issue.HasIssue( strMessage ) )
+      {
+         std::vector<std::string> astrIssues = issue.IssuesFromMessage( strMessage );
+         for ( std::vector<std::string>::size_type i = 0; i < astrIssues.size(); i++ )
+         {
+            std::pair<std::string, std::vector<std::string> > pairTitleAndLabels
+               = issue.GetIssueTitleAndLabels( astrIssues[i] );
+
+            std::string strMessage = pairTitleAndLabels.first;
+            if ( pairTitleAndLabels.second.size() > 0 )
+            {
+               strMessage += "\n";
+               for ( int i = 0; i < pairTitleAndLabels.second.size(); i++ )
+               {
+                  strMessage += "* " + pairTitleAndLabels.second[i];
+                  if ( i != pairTitleAndLabels.second.size() - 1 )
+                     strMessage += ", \n";
+               }
+               strMessage += "\n";
+            }
+
+            FlowAPILibrary::instance().Say( m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strMessage, "Issue-Title" );
             bSaidSomething = true;
          }
       }
