@@ -35,14 +35,23 @@ FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, 
 
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
 
+#ifdef USE_PTHREADS
    m_thread = pthread_self();
    int iRet = pthread_create( &m_thread, NULL, FlowHandler::HandleThread, (void*)this);
+#else
+   std::thread t(FlowHandler::HandleThread, (void*)this);
+   m_thread = std::move(t);
+#endif
 }
 
 FlowHandler::~FlowHandler()
 {
    m_bExit = true;
+#ifdef USE_PTHREADS
    pthread_join( m_thread, NULL);
+#else
+   m_thread.join();
+#endif
    FlowAPILibrary::instance().Destroy(&m_pFlowdock);
 }
 
@@ -72,6 +81,9 @@ void FlowHandler::HandleMessages()
       return;
 
    if( m_SaysRemaining<= 0 )
+      return;
+
+   if( strUserName.find( "ReviewBot" ) != std::string::npos )
       return;
 
    bool bSaidSomething = false;
@@ -122,7 +134,7 @@ void FlowHandler::HandleMessages()
                = issue.GetIssueTitleAndLabels( astrIssues[i] );
 
             std::string strMessage = pairTitleAndLabels.first;
-            if ( pairTitleAndLabels.second.size() > 0 )
+            if ( false && pairTitleAndLabels.second.size() > 0 )
             {
                strMessage += "\n";
                for ( int i = 0; i < pairTitleAndLabels.second.size(); i++ )
@@ -140,14 +152,7 @@ void FlowHandler::HandleMessages()
       }
    }
 
-   if ( !bSaidSomething && ( m_nFlowRespondingsFlags&YoloTag ) == YoloTag )
-   {
-      if ( strUserName.find( "a.novak" ) != std::string::npos )
-      {
-         FlowAPILibrary::instance().Tag( m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, "YOLO" );
-         bSaidSomething = true;
-      }
-   }
+
 
    /*if( !bSaidSomething )
    {
