@@ -5,9 +5,6 @@
 #include "ScreencastLink.h"
 #include "PullRequestTitle.h"
 #include "GitIssueTitle.h"
-#include "VSID.h"
-#include "WhosIn.h"
-#include "TyJones.h"
 #include <exception>
 #include <stdexcept>
 
@@ -83,8 +80,15 @@ void FlowHandler::HandleMessages()
    if( m_SaysRemaining<= 0 )
       return;
 
-   if( strUserName.find( "ReviewBot" ) != std::string::npos )
+   bool bPossibleReviewBot1 = strUserName.find("ReviewBot") != std::string::npos;
+   bool bPossibleReviewBot2 = strMessage.find("Hey guys, there's some unclaimed code reviews") != std::string::npos;
+   if (bPossibleReviewBot1)
       return;
+   if (bPossibleReviewBot2)
+   {
+      FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
+      return;
+   }
 
    bool bSaidSomething = false;
 
@@ -152,27 +156,6 @@ void FlowHandler::HandleMessages()
       }
    }
 
-
-
-   /*if( !bSaidSomething )
-   {
-      if( VSIDHandler::HasVSID(strMessage) )
-      {
-         VSIDHandler vsid;
-         std::vector<int> arrVSIDs = vsid.VSIDsFromMessage(strMessage);
-         for(std::vector<int>::size_type i=0; i<arrVSIDs.size(); i++ )
-         {
-            std::string strResponse = vsid.GetResponseForVSID(arrVSIDs[i]);
-
-            if( strResponse.length() > 0 )
-            {
-               FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "VSID");
-               bSaidSomething = true;
-            }
-         }
-      }
-   }*/
-
    if( !bSaidSomething && (m_nFlowRespondingsFlags&LinkFixing) == LinkFixing)
    {
       std::vector<std::string> arrstrLinks = LinkFixerHandler::LinksFromMessage(strMessage);
@@ -186,32 +169,6 @@ void FlowHandler::HandleMessages()
          }
       }
    }
-
-   if( !bSaidSomething && (m_nFlowRespondingsFlags&WhosIn) == WhosIn)
-   {
-      if( WhosIn::IsWhosInMessage(strMessage) )
-      {
-         std::string strResponse = WhosIn::HandleMessage(strMessage, strUserName);
-         if( !strResponse.empty() )
-         {
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "");
-            bSaidSomething = true;
-         }
-      }
-   }
-
-   /*if( !bSaidSomething && (m_nFlowRespondingsFlags&TY) == TY)
-   {
-      if( TyJones::HasTYMessage(strMessage) )
-      {
-         std::string strResponse = TyJones::HandleMessage(strMessage, strUserName);
-         if( !strResponse.empty() )
-         {
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strResponse, "", "Ty-Jones");
-            bSaidSomething = true;
-         }
-      }
-   }*/
 
    if( bSaidSomething )
       m_SaysRemaining--;
