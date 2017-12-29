@@ -1,8 +1,12 @@
 #ifndef FLOWHANDLER_H
 #define FLOWHANDLER_H
 
+#ifdef USE_PTHREADS
 #define HAVE_STRUCT_TIMESPEC
 #include <pthread.h>
+#else
+#include <thread>
+#endif
 #include <string>
 #include "FlowdockAPI.h"
 
@@ -31,7 +35,11 @@ protected:
 
    int m_nFlowRespondingsFlags;
 
+#ifdef USE_PTHREADS
    pthread_t m_thread;
+#else
+   std::thread m_thread;
+#endif
 };
 
 #endif

@@ -35,14 +35,23 @@ FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, 
 
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
 
+#ifdef USE_PTHREADS
    m_thread = pthread_self();
    int iRet = pthread_create( &m_thread, NULL, FlowHandler::HandleThread, (void*)this);
+#else
+   std::thread t(FlowHandler::HandleThread, (void*)this);
+   m_thread = std::move(t);
+#endif
 }
 
 FlowHandler::~FlowHandler()
 {
    m_bExit = true;
+#ifdef USE_PTHREADS
    pthread_join( m_thread, NULL);
+#else
+   m_thread.join();
+#endif
    FlowAPILibrary::instance().Destroy(&m_pFlowdock);
 }
 
