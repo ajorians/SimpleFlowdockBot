@@ -74,6 +74,9 @@ void FlowHandler::HandleMessages()
    if( m_SaysRemaining<= 0 )
       return;
 
+   if( strUserName.find( "ReviewBot" ) != std::string::npos )
+      return;
+
    bool bSaidSomething = false;
 
    //if message see if anything to say
@@ -122,7 +125,7 @@ void FlowHandler::HandleMessages()
                = issue.GetIssueTitleAndLabels( astrIssues[i] );
 
             std::string strMessage = pairTitleAndLabels.first;
-            if ( pairTitleAndLabels.second.size() > 0 )
+            if ( false && pairTitleAndLabels.second.size() > 0 )
             {
                strMessage += "\n";
                for ( int i = 0; i < pairTitleAndLabels.second.size(); i++ )
@@ -140,14 +143,7 @@ void FlowHandler::HandleMessages()
       }
    }
 
-   if ( !bSaidSomething && ( m_nFlowRespondingsFlags&YoloTag ) == YoloTag )
-   {
-      if ( strUserName.find( "a.novak" ) != std::string::npos )
-      {
-         FlowAPILibrary::instance().Tag( m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, "YOLO" );
-         bSaidSomething = true;
-      }
-   }
+
 
    /*if( !bSaidSomething )
    {
