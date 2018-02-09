@@ -113,8 +113,8 @@ std::vector<std::string> PullRequestTitleHandler::PRsFromMessage(const std::stri
                         //cout << "https://github.com/TechSmith in: " << strLower << endl;
 			break;
                 }
-
-		nStart = nStartShortID + strlen("https://github.com/TechSmith/");
+                
+      nStart = nStartShortID + strlen("https://github.com/TechSmith/");
 
       std::string strRepo;
       int nEnd = nStart;
@@ -125,6 +125,9 @@ std::vector<std::string> PullRequestTitleHandler::PRsFromMessage(const std::stri
          nEnd++;
       }
 
+      if( nStart >= 2 && strMessage[nStart-2] == ')' && strMessage[nStart-1] == '[' )
+         continue;
+      
       if( nEnd >= (int)strMessage.length() || strMessage[nEnd] != '/' )
          continue;
       nEnd++;
