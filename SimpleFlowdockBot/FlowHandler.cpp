@@ -80,15 +80,11 @@ void FlowHandler::HandleMessages()
    if( m_SaysRemaining<= 0 )
       return;
 
-   bool bPossibleReviewBot1 = strUserName.find("ReviewBot") != std::string::npos;
-   bool bPossibleReviewBot2 = strMessage.find("Hey guys, there's some unclaimed code reviews") != std::string::npos;
-   if (bPossibleReviewBot1)
+   std::string lowerCaseMessage(strMessage);
+   std::transform(lowerCaseMessage.begin(), lowerCaseMessage.end(), lowerCaseMessage.begin(), ::tolower);
+   bool bPossibleReviewBot = lowerCaseMessage.find("reviewbot") != std::string::npos;
+   if (bPossibleReviewBot)
       return;
-   if (bPossibleReviewBot2)
-   {
-      FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
-      return;
-   }
 
    bool bSaidSomething = false;
 
