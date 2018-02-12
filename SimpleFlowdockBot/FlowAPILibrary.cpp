@@ -128,16 +128,8 @@ std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, std::string& strUser, int&
       FlowdockGetMessageUserFunc GetUsersName = (FlowdockGetMessageUserFunc)m_lib.Resolve("FlowdockGetMessageUser");
       if( GetUsersName )
       {
-         char* pstrUser = NULL;
-         int nSizeOfUser = 0;
-         GetUsersName(pFlow, 0, pstrUser, nSizeOfUser);
-
-         pstrUser = new char[nSizeOfUser + 1];
-
-         GetUsersName(pFlow, 0, pstrUser, nSizeOfUser);
-
-         std::string strUserName( pstrUser );
-         strUser = strUserName;
+         int nUser = 0;
+         GetUsersName(pFlow, 0, nUser);
 
          FlowdockGetNicknameForUserFunc GetNick = (FlowdockGetNicknameForUserFunc)m_lib.Resolve("FlowdockGetNicknameForUser");
          if( GetNick )
@@ -146,11 +138,11 @@ std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, std::string& strUser, int&
             int nSizeOfNick = 0;
 
             //Hopefully works :)
-            if( 0 != GetNick(pFlow, (char*)strUserName.c_str(), pstrNick, nSizeOfNick) )
+            if( 0 != GetNick(pFlow, nUser, pstrNick, nSizeOfNick) )
             {
                pstrNick = new char[nSizeOfNick + 1];
 
-               GetNick(pFlow, (char*)strUserName.c_str(), pstrNick, nSizeOfNick);
+               GetNick(pFlow, nUser, pstrNick, nSizeOfNick);
 
                std::string strNick( pstrNick );
 
