@@ -7,6 +7,7 @@
 #include "GitIssueTitle.h"
 #include <exception>
 #include <stdexcept>
+#include <algorithm>
 
 #ifndef WIN32
 #include <string.h>//?? TODO: Find out why including this?
