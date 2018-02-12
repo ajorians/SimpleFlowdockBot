@@ -1,7 +1,6 @@
 #include "Library.h"
 
 #ifdef WIN32
-#include <atlstr.h>//For CString
 #endif
 
 RLibrary::RLibrary()
@@ -22,7 +21,7 @@ void RLibrary::SetLibrary(const std::string& strFilename)
 bool RLibrary::Load()
 {
 #ifdef WIN32
-	m_hModule = LoadLibraryW(CStringW(m_strFilename.c_str()));
+	m_hModule = LoadLibraryA(m_strFilename.c_str());
 #else
 	m_hModule = dlopen(m_strFilename.c_str(), RTLD_LAZY);
 #endif
