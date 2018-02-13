@@ -14,10 +14,12 @@ public:
    bool Destroy(FlowdockAPI* ppFlow);
    bool SetDefaults(FlowdockAPI pFlow, const std::string& strUsername, const std::string& strPassword);
    bool GetUserList(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
+   bool GetUserName(FlowdockAPI pFlow, int nUserId, std::string& strUserName);
+   bool GetUserEMail(FlowdockAPI pFlow, int nUserId, std::string& strUserEMail);
    bool StartListening(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
    bool Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strTags, const std::string& strName = "Build_bot");
    bool Tag( FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strTags );
-   std::string Listen(FlowdockAPI pFlow, std::string& strUser, int& nThreadID);
+   bool AddListen(FlowdockAPI pFlow, FlowMessageCallback cb, void* pUserData);
 
 protected:
    RLibrary m_lib;

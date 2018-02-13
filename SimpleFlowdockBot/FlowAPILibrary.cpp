@@ -55,6 +55,32 @@ bool FlowAPILibrary::GetUserList(FlowdockAPI pFlow, const std::string& strOrg, c
    return true;
 }
 
+bool FlowAPILibrary::GetUserName(FlowdockAPI pFlow, int nUserId, std::string& strUserName)
+{
+   int nSizeOfNickName = 0;
+   if (1 == FlowdockGetNicknameForUser(pFlow, nUserId, NULL, nSizeOfNickName))
+   {
+      char* pstrData = new char[nSizeOfNickName + 1];
+      FlowdockGetNicknameForUser(pFlow, nUserId, pstrData, nSizeOfNickName);
+      strUserName = std::string(pstrData);
+      delete pstrData;
+   }
+   return true;
+}
+
+bool FlowAPILibrary::GetUserEMail(FlowdockAPI pFlow, int nUserId, std::string& strUserEMail)
+{
+   int nSizeOfEMail = 0;
+   if (1 == FlowdockGetEMailForUser(pFlow, nUserId, NULL, nSizeOfEMail))
+   {
+      char* pstrData = new char[nSizeOfEMail + 1];
+      FlowdockGetEMailForUser(pFlow, nUserId, pstrData, nSizeOfEMail);
+      strUserEMail = std::string(pstrData);
+      delete pstrData;
+   }
+   return true;
+}
+
 bool FlowAPILibrary::StartListening(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
 {
    FlowdockAddListenFlowFunc AddListenFlow = (FlowdockAddListenFlowFunc)m_lib.Resolve("FlowdockAddListenFlow");
@@ -91,82 +117,14 @@ bool FlowAPILibrary::Tag( FlowdockAPI pFlow, const std::string& strOrg, const st
    return true;
 }
 
-std::string FlowAPILibrary::Listen(FlowdockAPI pFlow, std::string& strUser, int& nThreadID)
+bool FlowAPILibrary::AddListen(FlowdockAPI pFlow, FlowMessageCallback cb, void* pUserData)
 {
-   std::string strRet;
-   FlowdockGetListenMessageCountFunc GetListenMessagesCount = (FlowdockGetListenMessageCountFunc)m_lib.Resolve("FlowdockGetListenMessageCount");
-   if( !GetListenMessagesCount )
-      return strRet;
+   FlowdockAddListenCallbackFunc AddListen = (FlowdockAddListenCallbackFunc)m_lib.Resolve("FlowdockAddListenCallback");
+   if (!AddListen)
+      return false;
 
-   int nCount = GetListenMessagesCount(pFlow);
-   if( nCount <= 0 )
-      return strRet;
-
-   FlowdockGetListenMessageTypeFunc GetListenMessagesType = (FlowdockGetListenMessageTypeFunc)m_lib.Resolve("FlowdockGetListenMessageType");
-   if( !GetListenMessagesType )
-      return strRet;
-
-   int nType = GetListenMessagesType(pFlow, 0);
-
-   if( nType == 0 || nType == 1/*Comment*/ )
-   {
-      FlowdockGetMessageContentFunc GetMessage = (FlowdockGetMessageContentFunc)m_lib.Resolve("FlowdockGetMessageContent");
-      if( !GetMessage )
-         return strRet;
-
-      char* pstrMessage = NULL;
-      int nSizeOfMessage = 0;
-      GetMessage(pFlow, 0, pstrMessage, nSizeOfMessage);
-
-      pstrMessage = new char[nSizeOfMessage + 1];
-
-      GetMessage(pFlow, 0, pstrMessage, nSizeOfMessage);
-
-      std::string strMessage(pstrMessage);
-
-      //GetUser
-      FlowdockGetMessageUserFunc GetUsersName = (FlowdockGetMessageUserFunc)m_lib.Resolve("FlowdockGetMessageUser");
-      if( GetUsersName )
-      {
-         int nUser = 0;
-         GetUsersName(pFlow, 0, nUser);
-
-         FlowdockGetNicknameForUserFunc GetNick = (FlowdockGetNicknameForUserFunc)m_lib.Resolve("FlowdockGetNicknameForUser");
-         if( GetNick )
-         {
-            char* pstrNick = NULL;
-            int nSizeOfNick = 0;
-
-            //Hopefully works :)
-            if( 0 != GetNick(pFlow, nUser, pstrNick, nSizeOfNick) )
-            {
-               pstrNick = new char[nSizeOfNick + 1];
-
-               GetNick(pFlow, nUser, pstrNick, nSizeOfNick);
-
-               std::string strNick( pstrNick );
-
-               if( !strNick.empty() )
-                  strUser = strNick;
-            }
-         }
-      }
-
-      FlowdockGetMessageIDFunc GetID = (FlowdockGetMessageIDFunc)m_lib.Resolve("FlowdockGetMessageID");
-      if( !GetMessage )
-         return strRet;
-
-      GetID(pFlow, 0, nThreadID);
-
-      strRet = strMessage;
-   }
-
-   FlowdockRemoveListenMessageFunc RemoveListenMessage = (FlowdockRemoveListenMessageFunc)m_lib.Resolve("FlowdockRemoveListenMessage");
-   if( !RemoveListenMessage )
-      return 0;
-
-   RemoveListenMessage(pFlow, 0);
-   return strRet;
+   AddListen(pFlow, cb, pUserData);
+   return true;
 }
 
 FlowAPILibrary::FlowAPILibrary()

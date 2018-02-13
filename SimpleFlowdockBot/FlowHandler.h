@@ -18,8 +18,11 @@ public:
    FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags = RESPONDINGS_ALL);
    ~FlowHandler();
 
+protected:
+
    static void* HandleThread(void* ptr);
-   void HandleMessages();
+   static void Listen_Callback(FlowMessage message, void* pUserData);
+   void HandleMessages(const std::string& strMessage, int nUserID, int nThreadId);
 
 protected:
    FlowdockAPI m_pFlowdock;

@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
    cout << "Starting up FlowdockBot" << endl;
 
    FlowdockBot bot;
+   bot.AddFlow("aj-org", "main", "ajorians@gmail.com", "1Smajjmd");
 
    int n = 0;
    while(true)

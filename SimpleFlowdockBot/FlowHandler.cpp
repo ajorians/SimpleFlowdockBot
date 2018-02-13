@@ -31,6 +31,8 @@ FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, 
    if( !FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword) )
       throw std::runtime_error("Failed to get user's list");
 
+   FlowAPILibrary::instance().AddListen(m_pFlowdock, Listen_Callback, this);
+
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
 
 #ifdef USE_PTHREADS
@@ -58,7 +60,6 @@ void* FlowHandler::HandleThread(void* ptr)
    FlowHandler* pThis = (FlowHandler*)ptr;
    while(!pThis->m_bExit)
    {
-      pThis->HandleMessages();
 #ifdef _WIN32
       Sleep(100);//1/10 second
 #else
@@ -69,14 +70,27 @@ void* FlowHandler::HandleThread(void* ptr)
    return NULL;
 }
 
-void FlowHandler::HandleMessages()
+void FlowHandler::Listen_Callback(FlowMessage message, void* pUserData)
 {
-   int nThreadID = 0;
-   std::string strUserName;
-   std::string strMessage = FlowAPILibrary::instance().Listen(m_pFlowdock, strUserName, nThreadID);
+   FlowHandler* pThis = (FlowHandler*)pUserData;
+   std::string strMessage(message.Message);
+   pThis->HandleMessages(strMessage, message.nUserId, message.nThreadId);
+}
 
+void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int nThreadID)
+{
    if( strMessage.empty() )
       return;
+
+   std::string strEMail;
+   FlowAPILibrary::instance().GetUserEMail(m_pFlowdock, nUserID, strEMail);
+
+   if (strEMail == m_strUsername)
+      return;
+
+   if (nUserID == 311366) {//This is ReviewBot.  Gonna try this :)
+      return;
+   }
 
    if( m_SaysRemaining<= 0 )
       return;
@@ -169,6 +183,5 @@ void FlowHandler::HandleMessages()
 
    if( bSaidSomething )
       m_SaysRemaining--;
-
 }
 

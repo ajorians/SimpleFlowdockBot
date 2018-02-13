@@ -14,7 +14,6 @@ public:
    ~FlowdockBot();
 
    void AddFlow(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nReplyingFlags = RESPONDINGS_ALL);
-   void HandleMessages();
 
 protected:
    std::vector<FlowHandler*> m_apHandlers;
