@@ -11,6 +11,7 @@
 #include "FlowdockAPI.h"
 
 #include "FlowRespondings.h"
+#include "FlowThread.h"
 
 class FlowHandler
 {
@@ -21,8 +22,17 @@ public:
 protected:
 
    static void* HandleThread(void* ptr);
-   static void Listen_Callback(FlowMessage message, void* pUserData);
-   void HandleMessages(const std::string& strMessage, int nUserID, int nThreadId);
+   static void Listen_Callback(FlowdockMessage message, void* pUserData);
+   void HandleMessages(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string> astrAddedTags, const std::vector<std::string> astrRemovedTags);
+   void HandleMessageEdit(const std::string& strMessage, int nUserId, int nThreadId, int nMessageID);
+   void HandleTag(int nUserID, int nThreadId, int nMessageId, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags);
+   void HandleComment(int nUserId, int nThreadId, int nMessageId, const std::string& strComment);
+   void HandleEmoji(int nUserId, int nThreadId, int nMessageId, const std::string& strEmoji, bool bAdded);
+
+   FlowThread* GetFlowThread(int nThreadId);
+   FlowThread* CreateFlowThread(int nThreadId);
+
+   std::string GetUserNameWithRetry(int nUserId);
 
 protected:
    FlowdockAPI m_pFlowdock;
@@ -37,6 +47,8 @@ protected:
    bool m_bExit;
 
    int m_nFlowRespondingsFlags;
+
+   std::vector<FlowThread> m_arrFlowThreads;
 
 #ifdef USE_PTHREADS
    pthread_t m_thread;
