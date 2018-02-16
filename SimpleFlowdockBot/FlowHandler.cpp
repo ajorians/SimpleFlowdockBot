@@ -8,6 +8,8 @@
 #include <exception>
 #include <stdexcept>
 #include <algorithm>
+#include <iostream>
+#include <cassert>
 
 #ifndef WIN32
 #include <string.h>//?? TODO: Find out why including this?
@@ -16,6 +18,9 @@
 
 #ifdef WIN32
 #include <windows.h>//For Sleep
+#ifdef GetMessage
+#undef GetMessage
+#endif
 #endif
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
@@ -30,6 +35,8 @@ FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, 
 
    if( !FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword) )
       throw std::runtime_error("Failed to get user's list");
+
+   FlowAPILibrary::instance().AddListen(m_pFlowdock, Listen_Callback, this);
 
    FlowAPILibrary::instance().StartListening(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
 
@@ -58,7 +65,6 @@ void* FlowHandler::HandleThread(void* ptr)
    FlowHandler* pThis = (FlowHandler*)ptr;
    while(!pThis->m_bExit)
    {
-      pThis->HandleMessages();
 #ifdef _WIN32
       Sleep(100);//1/10 second
 #else
@@ -69,14 +75,71 @@ void* FlowHandler::HandleThread(void* ptr)
    return NULL;
 }
 
-void FlowHandler::HandleMessages()
+void FlowHandler::Listen_Callback(FlowdockMessage message, void* pUserData)
 {
-   int nThreadID = 0;
-   std::string strUserName;
-   std::string strMessage = FlowAPILibrary::instance().Listen(m_pFlowdock, strUserName, nThreadID);
+   FlowHandler* pThis = (FlowHandler*)pUserData;
+   std::string strMessage(message.Message);//Or emoji
+   std::vector<std::string> astrAddedTags;
+   std::vector<std::string> astrRemovedTags;
 
+   for (int i = 0; i < message.nAddedTags; i++)
+   {
+      std::string s(message.AddedTags[i]);
+      astrAddedTags.push_back(s);
+   }
+
+   for (int i = 0; i < message.nRemovedTags; i++)
+   {
+      std::string s(message.RemovedTags[i]);
+      astrRemovedTags.push_back(s);
+   }
+
+   switch (message.eEvent)
+   {
+   case Message:
+      pThis->HandleMessages(strMessage, message.nUserId, message.nThreadId, message.nMessageId, astrAddedTags, astrRemovedTags);
+      break;
+   case MessageEdit:
+      pThis->HandleMessageEdit(strMessage, message.nUserId, message.nThreadId, message.nMessageId);
+      break;
+   case Tag_Change:
+      pThis->HandleTag(message.nUserId, message.nThreadId, message.nMessageId, astrAddedTags, astrRemovedTags);
+      break;
+   case Comment:
+      pThis->HandleComment(message.nUserId, message.nThreadId, message.nMessageId, strMessage);
+      break;
+   case Emoji_Reaction:
+      pThis->HandleEmoji(message.nUserId, message.nThreadId, message.nMessageId, strMessage, message.bAdded);
+      break;
+   }
+}
+
+void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int nThreadID, int nMessageID, const std::vector<std::string> astrAddedTags, const std::vector<std::string> astrRemovedTags)
+{
    if( strMessage.empty() )
       return;
+
+   std::string strEMail;
+   FlowAPILibrary::instance().GetUserEMail(m_pFlowdock, nUserID, strEMail);
+
+   std::string strUserName = GetUserNameWithRetry(nUserID);
+
+   FlowThread* pFlowThread = GetFlowThread(nThreadID);
+   if (!pFlowThread)
+   {
+      pFlowThread = CreateFlowThread(nThreadID);
+   }
+   pFlowThread->AddMessage(strMessage, nMessageID, strUserName, astrAddedTags, astrRemovedTags);
+
+   std::cout << "Message from: " << strUserName << " said \"" << strMessage << "\"" << std::endl;
+
+   //Early return if seeing my message or ReviewBot
+   if (strEMail == m_strUsername)
+      return;
+
+   if (nUserID == 311366) {//This is ReviewBot.  Gonna try this :)
+      return;
+   }
 
    if( m_SaysRemaining<= 0 )
       return;
@@ -120,7 +183,7 @@ void FlowHandler::HandleMessages()
 
             std::string strMessage = "[" + pairTitleAndRepo.second + "]: " + pairTitleAndRepo.first;
 
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strMessage, "PR-Title");
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, strMessage, "PR-Title");
             bSaidSomething = true;
          }
       }
@@ -147,10 +210,16 @@ void FlowHandler::HandleMessages()
                strMessage += "\n";
             }
 
-            FlowAPILibrary::instance().Say( m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strMessage, "Issue-Title" );
+            FlowAPILibrary::instance().Say( m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, strMessage, "Issue-Title" );
             bSaidSomething = true;
          }
       }
+   }
+
+   if (!bSaidSomething && strMessage == "Hi Bots")
+   {
+      FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, "Hi!  I'm build_bot! :smiley:", "greeting");
+      bSaidSomething = true;
    }
 
    if( !bSaidSomething && (m_nFlowRespondingsFlags&LinkFixing) == LinkFixing)
@@ -161,7 +230,7 @@ void FlowHandler::HandleMessages()
          std::string strCorrected = LinkFixerHandler::GetCorrectedLink(arrstrLinks[i]);
          if( strCorrected != arrstrLinks[i] )
          {
-            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strCorrected, "linkfixer");
+            FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, strCorrected, "linkfixer");
             bSaidSomething = true;
          }
       }
@@ -169,6 +238,118 @@ void FlowHandler::HandleMessages()
 
    if( bSaidSomething )
       m_SaysRemaining--;
+}
 
+void FlowHandler::HandleMessageEdit(const std::string& strMessage, int nUserId, int nThreadId, int nMessageID)
+{
+   //Let's see if we can find that thread
+   std::string strUserName = GetUserNameWithRetry(nUserId);
+
+   std::cout << "Edited message by: " << strUserName << std::endl;
+
+   //Let's see if we can find that thread
+   FlowThread* pFlowThread = GetFlowThread(nThreadId);
+   if (!pFlowThread)
+   {
+      pFlowThread = CreateFlowThread(nThreadId);
+   }
+
+   std::string strOriginalMessage = pFlowThread->GetMessage(nMessageID);
+   if (!strOriginalMessage.empty())
+   {
+      std::cout << "Original text: \"" << strOriginalMessage << "\"" << std::endl;
+   }
+
+   pFlowThread->MessageEdit(nMessageID, strMessage, strUserName);
+
+   std::cout << "New text: \"" << strMessage << "\"" << std::endl;
+}
+
+void FlowHandler::HandleTag(int nUserID, int nThreadId, int nMessageId, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags)
+{
+   std::string strUserName = GetUserNameWithRetry(nUserID);
+
+   //Let's see if we can find that thread
+   FlowThread* pFlowThread = GetFlowThread(nThreadId);
+   if (!pFlowThread)
+   {
+      pFlowThread = CreateFlowThread(nThreadId);
+   }
+
+   for (int i = 0; i < astrAddedTags.size(); i++)
+   {
+      std::cout << "Tag added by: " << strUserName << " which is: \"" << astrAddedTags[i] << "\"" << std::endl;
+      pFlowThread->AddTag(strUserName, nMessageId, astrAddedTags[i]);
+   }
+   for (int i = 0; i < astrRemovedTags.size(); i++)
+   {
+      std::cout << "Tag removed by: " << strUserName << " which is: \"" << astrRemovedTags[i] << "\"" << std::endl;
+      pFlowThread->RemoveTag(strUserName, nMessageId, astrRemovedTags[i]);
+   }
+}
+
+void FlowHandler::HandleComment(int nUserId, int nThreadId, int nMessageId, const std::string& strComment)
+{
+   std::string strUserName = GetUserNameWithRetry(nUserId);
+}
+
+void FlowHandler::HandleEmoji(int nUserId, int nThreadId, int nMessageId, const std::string& strEmoji, bool bAdded)
+{
+   std::string strUserName = GetUserNameWithRetry(nUserId);
+
+   //Let's see if we can find that thread
+   FlowThread* pFlowThread = GetFlowThread(nThreadId);
+   if (!pFlowThread)
+   {
+      pFlowThread = CreateFlowThread(nThreadId);
+   }
+
+   if (bAdded)
+   {
+      std::cout << "Emoji added by: " << strUserName << " which is: \"" << strEmoji << "\"" << std::endl;
+      pFlowThread->AddEmoji(strUserName, nMessageId, strEmoji);
+   }
+   else
+   {
+      std::cout << "Emoji removed by: " << strUserName << " which is: \"" << strEmoji << "\"" << std::endl;
+      pFlowThread->RemoveEmoji(strUserName, nMessageId, strEmoji);
+   }
+}
+
+FlowThread* FlowHandler::GetFlowThread(int nThreadId)
+{
+   for (int i = 0; i < m_arrFlowThreads.size(); i++)
+   {
+      if (m_arrFlowThreads[i].GetId() == nThreadId)
+      {
+         return &m_arrFlowThreads[i];
+      }
+   }
+
+   return NULL;
+}
+
+FlowThread* FlowHandler::CreateFlowThread(int nThreadId)
+{
+   assert(GetFlowThread(nThreadId) == NULL);//Should have called GetFlowThread instead
+
+   FlowThread flowThread(nThreadId);
+   m_arrFlowThreads.push_back(flowThread);
+   return GetFlowThread(nThreadId);
+}
+
+std::string FlowHandler::GetUserNameWithRetry(int nUserId)
+{
+   std::string strUserName;
+   FlowAPILibrary::instance().GetUserName(m_pFlowdock, nUserId, strUserName);
+
+   //If no username let's see if we can get it
+   if (strUserName.empty())
+   {
+      FlowAPILibrary::instance().GetUserList(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword);
+      FlowAPILibrary::instance().GetUserName(m_pFlowdock, nUserId, strUserName);
+   }
+
+   return strUserName;
 }
 

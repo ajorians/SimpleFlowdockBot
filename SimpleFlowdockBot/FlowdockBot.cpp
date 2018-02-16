@@ -13,11 +13,3 @@ void FlowdockBot::AddFlow(const std::string& strOrg, const std::string& strFlow,
 {
    m_apHandlers.push_back(new FlowHandler(strOrg, strFlow, strUsername, strPassword, nReplyingFlags));
 }
-
-void FlowdockBot::HandleMessages()
-{
-   for(std::vector<FlowHandler*>::size_type i=0; i<m_apHandlers.size(); i++)
-   {
-      m_apHandlers[i]->HandleMessages();
-   }
-}
