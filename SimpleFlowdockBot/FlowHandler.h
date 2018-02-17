@@ -8,6 +8,7 @@
 #include <thread>
 #endif
 #include <string>
+#include <fstream>
 #include "FlowdockAPI.h"
 
 #include "FlowRespondings.h"
@@ -34,12 +35,16 @@ protected:
 
    std::string GetUserNameWithRetry(int nUserId);
 
+   void PrintInformation(const std::string& strText);
+
 protected:
    FlowdockAPI m_pFlowdock;
    std::string m_strOrg;
    std::string m_strFlow;
    std::string m_strUsername;
    std::string m_strPassword;
+
+   std::ofstream m_Out;
 
    //This is a limitation so it isn't too chatty :)
    int m_SaysRemaining;
