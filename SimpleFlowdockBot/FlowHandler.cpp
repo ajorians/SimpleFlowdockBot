@@ -140,6 +140,11 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
    if (strEMail == m_strUsername)
       return;
 
+   std::string lowerCaseUserName(strUserName);
+   std::transform(lowerCaseUserName.begin(), lowerCaseUserName.end(), lowerCaseUserName.begin(), ::tolower);
+   if (strUserName == "a.orians" || strUserName == "reviewbot")
+      return;
+
    if (nUserID == 311366) {//This is ReviewBot.  Gonna try this :)
       return;
    }
