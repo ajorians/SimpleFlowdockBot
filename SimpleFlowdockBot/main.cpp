@@ -5,6 +5,7 @@
 #ifndef WIN32
 #include <string.h>//?? TODO: Find out why including this?
 #include <unistd.h>//For usleep
+#include <cstdlib>
 #endif
 
 #ifdef WIN32
