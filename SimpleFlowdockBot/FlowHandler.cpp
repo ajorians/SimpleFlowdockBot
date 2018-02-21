@@ -25,10 +25,12 @@
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
-     m_Out(strFlow + ".log", std::ios::binary),
    m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
+
+   std::string strFileName = strFlow + ".log";
+   m_Out.open(strFileName.c_str(), std::ios::app);
 
    //Important such that I don't see my messages as new messages :)
    if( !FlowAPILibrary::instance().SetDefaults(m_pFlowdock, m_strUsername, m_strPassword) )
