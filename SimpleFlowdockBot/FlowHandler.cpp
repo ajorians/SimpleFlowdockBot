@@ -25,6 +25,7 @@
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
+     m_Out(strFlow + ".log", std::ios::binary),
    m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
@@ -131,7 +132,7 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
    }
    pFlowThread->AddMessage(strMessage, nMessageID, strUserName, astrAddedTags, astrRemovedTags);
 
-   std::cout << "Message from: " << strUserName << " said \"" << strMessage << "\"" << std::endl;
+   PrintInformation( std::string("Message from: ") + strUserName + std::string( " said \"" ) + strMessage + "\"" );
 
    //Early return if seeing my message or ReviewBot
    if (strEMail == m_strUsername)
@@ -245,7 +246,7 @@ void FlowHandler::HandleMessageEdit(const std::string& strMessage, int nUserId, 
    //Let's see if we can find that thread
    std::string strUserName = GetUserNameWithRetry(nUserId);
 
-   std::cout << "Edited message by: " << strUserName << std::endl;
+   PrintInformation( std::string("Edited message by: ") + strUserName );
 
    //Let's see if we can find that thread
    FlowThread* pFlowThread = GetFlowThread(nThreadId);
@@ -257,12 +258,12 @@ void FlowHandler::HandleMessageEdit(const std::string& strMessage, int nUserId, 
    std::string strOriginalMessage = pFlowThread->GetMessage(nMessageID);
    if (!strOriginalMessage.empty())
    {
-      std::cout << "Original text: \"" << strOriginalMessage << "\"" << std::endl;
+      PrintInformation( std::string("Original text: \"") + strOriginalMessage + std::string( "\"" ) );
    }
 
    pFlowThread->MessageEdit(nMessageID, strMessage, strUserName);
 
-   std::cout << "New text: \"" << strMessage << "\"" << std::endl;
+   PrintInformation( std::string( "New text: \"") + strMessage + std::string( "\"" ) );
 }
 
 void FlowHandler::HandleTag(int nUserID, int nThreadId, int nMessageId, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags)
@@ -278,12 +279,12 @@ void FlowHandler::HandleTag(int nUserID, int nThreadId, int nMessageId, const st
 
    for (int i = 0; i < astrAddedTags.size(); i++)
    {
-      std::cout << "Tag added by: " << strUserName << " which is: \"" << astrAddedTags[i] << "\"" << std::endl;
+      PrintInformation( std::string( "Tag added by: " ) + strUserName + std::string( " which is: \"" ) + astrAddedTags[i] + std::string( "\"" ) );
       pFlowThread->AddTag(strUserName, nMessageId, astrAddedTags[i]);
    }
    for (int i = 0; i < astrRemovedTags.size(); i++)
    {
-      std::cout << "Tag removed by: " << strUserName << " which is: \"" << astrRemovedTags[i] << "\"" << std::endl;
+      PrintInformation( std::string( "Tag removed by: ") + strUserName + std::string( " which is: \"" ) + astrRemovedTags[i] + std::string("\"" ) );
       pFlowThread->RemoveTag(strUserName, nMessageId, astrRemovedTags[i]);
    }
 }
@@ -306,12 +307,12 @@ void FlowHandler::HandleEmoji(int nUserId, int nThreadId, int nMessageId, const 
 
    if (bAdded)
    {
-      std::cout << "Emoji added by: " << strUserName << " which is: \"" << strEmoji << "\"" << std::endl;
+      PrintInformation( std::string( "Emoji added by: " ) + strUserName + std::string( " which is: \"" ) + strEmoji + std::string( "\"" ) );
       pFlowThread->AddEmoji(strUserName, nMessageId, strEmoji);
    }
    else
    {
-      std::cout << "Emoji removed by: " << strUserName << " which is: \"" << strEmoji << "\"" << std::endl;
+      PrintInformation( std::string( "Emoji removed by: " ) + strUserName + std::string( " which is: \"" ) + strEmoji + std::string( "\"" ) );
       pFlowThread->RemoveEmoji(strUserName, nMessageId, strEmoji);
    }
 }
@@ -351,5 +352,11 @@ std::string FlowHandler::GetUserNameWithRetry(int nUserId)
    }
 
    return strUserName;
+}
+
+void FlowHandler::PrintInformation(const std::string &strText)
+{
+   m_Out << strText << std::endl;
+   std::cout << strText << std::endl;
 }
 
