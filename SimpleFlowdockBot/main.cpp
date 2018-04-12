@@ -12,7 +12,6 @@
 #include <windows.h>//For Sleep
 #endif
 
-#include "FlowdockBot.h"
 #include "FlowHandler.h"
 #include "FlowRespondings.h"
 
@@ -21,8 +20,8 @@ using namespace std;
 int main(int argc, char *argv[])
 {
    cout << "Starting up FlowdockBot" << endl;
-#if 1
-   std::string strOrg, strFlow, strUser, strPassword;
+
+   std::string strOrg, strFlow, strUser, strPassword, strGitHubToken;
    int nRespondings = RESPONDINGS_ALL;
    for (int i = 0; i < argc; i++)
    {
@@ -41,14 +40,17 @@ int main(int argc, char *argv[])
 
       if (str == "--responding")
          nRespondings = atoi(argv[i + 1]);
+
+      if( str == "--githubtoken")
+         strGitHubToken = argv[i+1];
    }
    if (argc < 4 || strOrg.length() == 0 || strFlow.length() == 0 || strUser.length() == 0 || strPassword.length() == 0)
    {
-      cout << "Usage: " << argv[0] << " --org aj-org --flow main --user ajorians@gmail.com --password abc123" << endl;
+      cout << "Usage: " << argv[0] << " --org aj-org --flow main --user ajorians@gmail.com --password abc123 --githubtoken token" << endl;
       return 0;
    }
 
-   FlowHandler handler(strOrg, strFlow, strUser, strPassword, nRespondings);
+   FlowHandler handler(strOrg, strFlow, strUser, strPassword, strGitHubToken, nRespondings);
 
    while (true)
    {
@@ -58,24 +60,6 @@ int main(int argc, char *argv[])
       usleep(1000 * 1000);
 #endif
    }
-#else
-
-   FlowdockBot bot;
-   bot.AddFlow("aj-org", "main", "ajorians@gmail.com", "1Smajjmd");
-
-   int n = 0;
-   while(true)
-   {
-      n++;
-      n = n%10;
-      cout << n;
-#ifdef _WIN32
-      Sleep(1000);//1 second
-#else
-      usleep(1000*1000);
-#endif
-   }
-#endif
 
    cout << "Exiting FlowdockBot" << endl;
 

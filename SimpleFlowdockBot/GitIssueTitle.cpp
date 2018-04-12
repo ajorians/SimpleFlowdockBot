@@ -64,8 +64,8 @@ namespace
    }
 }
 
-GitIssueTitleHandler::GitIssueTitleHandler()
-   : m_pCurl( NULL ), m_pCookies( NULL )
+GitIssueTitleHandler::GitIssueTitleHandler(const std::string& strGithubToken)
+   : m_pCurl( NULL ), m_pCookies( NULL ), m_strGithubToken( strGithubToken )
 {
    //curl_global_init(CURL_GLOBAL_ALL);
    m_pCurl = curl_easy_init();
@@ -82,8 +82,7 @@ GitIssueTitleHandler::GitIssueTitleHandler()
 
    curl_easy_setopt( m_pCurl, CURLOPT_USERAGENT, "ajclient/0.0.1" );
    curl_easy_setopt( m_pCurl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
-   std::string strUserPass = "ajorians:1Smajjmd";
-   curl_easy_setopt( m_pCurl, CURLOPT_USERPWD, strUserPass.c_str() );
+   curl_easy_setopt( m_pCurl, CURLOPT_USERPWD, m_strGithubToken.c_str() );
 
    curl_easy_setopt( m_pCurl, CURLOPT_VERBOSE, 0L );
 }
@@ -120,7 +119,7 @@ std::vector<std::string> GitIssueTitleHandler::IssuesFromMessage( const std::str
       std::string strRepo;
       int nEnd = nStart;
       while ( nEnd < (int)strMessage.length() &&
-         ( ( strMessage[nEnd] >= 'a' && strMessage[nEnd] <= 'z' ) || ( strMessage[nEnd] >= 'A' && strMessage[nEnd] <= 'Z' ) || ( strMessage[nEnd] >= '0' && strMessage[nEnd] <= '9' ) || strMessage[nEnd] == '-' ) )
+         ( ( strMessage[nEnd] >= 'a' && strMessage[nEnd] <= 'z' ) || ( strMessage[nEnd] >= 'A' && strMessage[nEnd] <= 'Z' ) || ( strMessage[nEnd] >= '0' && strMessage[nEnd] <= '9' ) || strMessage[nEnd] == '-' || strMessage[nEnd] == '.') )
       {
          strRepo += strMessage[nEnd];
          nEnd++;

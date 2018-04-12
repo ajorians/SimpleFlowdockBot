@@ -17,7 +17,7 @@
 class FlowHandler
 {
 public:
-   FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags = RESPONDINGS_ALL);
+   FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nFlowRespondingsFlags = RESPONDINGS_ALL);
    ~FlowHandler();
 
 protected:
@@ -43,6 +43,7 @@ protected:
    std::string m_strFlow;
    std::string m_strUsername;
    std::string m_strPassword;
+   std::string m_strGithubToken;
 
    std::ofstream m_Out;
 

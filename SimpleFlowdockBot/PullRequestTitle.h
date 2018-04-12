@@ -8,7 +8,7 @@
 class PullRequestTitleHandler
 {
 public:
-	PullRequestTitleHandler();
+	PullRequestTitleHandler(const std::string& strGithubToken);
 	~PullRequestTitleHandler();
 
    static bool HasPR(const std::string& strMessage);
@@ -25,6 +25,7 @@ protected:
 	curl_slist * m_pCookies;
 
 	std::string m_strWrite;
+	std::string m_strGithubToken;
 };
 
 

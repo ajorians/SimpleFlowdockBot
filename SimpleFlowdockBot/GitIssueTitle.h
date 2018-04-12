@@ -8,7 +8,7 @@
 class GitIssueTitleHandler
 {
 public:
-   GitIssueTitleHandler();
+   GitIssueTitleHandler(const std::string& strGithubToken);
 	~GitIssueTitleHandler();
 
    static bool HasIssue(const std::string& strMessage);
@@ -25,6 +25,7 @@ protected:
 	curl_slist * m_pCookies;
 
 	std::string m_strWrite;
+	std::string m_strGithubToken;
 };
 
 

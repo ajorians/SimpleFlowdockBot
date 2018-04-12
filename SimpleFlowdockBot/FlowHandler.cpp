@@ -23,8 +23,8 @@
 #endif
 #endif
 
-FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
-   : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword),
+FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
+   : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword), m_strGithubToken( strGithubToken ),
    m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
@@ -180,7 +180,7 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
 
    if( !bSaidSomething && (m_nFlowRespondingsFlags&PRTitles)==PRTitles )
    {
-      PullRequestTitleHandler pr;
+      PullRequestTitleHandler pr( m_strGithubToken);
       if( pr.HasPR(strMessage) )
       {
          std::vector<std::string> astrPRs = pr.PRsFromMessage(strMessage);
@@ -196,7 +196,7 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
          }
       }
 
-      GitIssueTitleHandler issue;
+      GitIssueTitleHandler issue( m_strGithubToken );
       if ( issue.HasIssue( strMessage ) )
       {
          std::vector<std::string> astrIssues = issue.IssuesFromMessage( strMessage );
