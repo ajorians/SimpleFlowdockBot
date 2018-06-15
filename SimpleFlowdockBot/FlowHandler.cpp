@@ -171,7 +171,7 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
             for (std::vector<std::string>::size_type i = 0; i < astrLinks.size(); i++)
             {
                std::string strImg = sc.GetImageURL(astrLinks[i]);
-               FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nThreadID, strImg, "");
+               FlowAPILibrary::instance().Say(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, strImg, "");
                bSaidSomething = true;
             }
          }
