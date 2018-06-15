@@ -156,7 +156,9 @@ std::vector<std::string> GitIssueTitleHandler::IssuesFromMessage( const std::str
 size_t GitIssueTitleHandler::write_callback( void *ptr, size_t size, size_t nmemb, void *stream )
 {
    GitIssueTitleHandler* pHandler = (GitIssueTitleHandler*)stream;
-   pHandler->m_strWrite.append( (char*)ptr, nmemb );
+    const char* pstr = reinterpret_cast<char*>(ptr);
+    std::string strData(pstr, nmemb);
+   pHandler->m_strWrite += strData;
 
    return nmemb;
 }

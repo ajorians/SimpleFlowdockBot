@@ -158,7 +158,9 @@ std::vector<std::string> PullRequestTitleHandler::PRsFromMessage(const std::stri
 size_t PullRequestTitleHandler::write_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
 	PullRequestTitleHandler* pHandler = (PullRequestTitleHandler*)stream;
-	pHandler->m_strWrite.append((char*)ptr, nmemb);
+    const char* pstr = reinterpret_cast<char*>(ptr);
+    std::string strData(pstr, nmemb);
+	pHandler->m_strWrite += strData;
 
 	return nmemb;
 }
