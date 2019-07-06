@@ -117,6 +117,16 @@ bool FlowAPILibrary::Tag( FlowdockAPI pFlow, const std::string& strOrg, const st
    return true;
 }
 
+bool FlowAPILibrary::AddEmojiReaction( FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nMessageID, const std::string& strEmojiReaction )
+{
+    FlowdockAddEmojiReactionFunc AddReaction = (FlowdockAddEmojiReactionFunc)m_lib.Resolve( "FlowdockAddEmojiReaction" );
+    if ( !AddReaction )
+        return false;
+
+    AddReaction( pFlow, strOrg.c_str(), strFlow.c_str(), strUsername.c_str(), strPassword.c_str(), nMessageID, strEmojiReaction.c_str() );
+    return true;
+}
+
 bool FlowAPILibrary::AddListen(FlowdockAPI pFlow, FlowMessageCallback cb, void* pUserData)
 {
    FlowdockAddListenCallbackFunc AddListen = (FlowdockAddListenCallbackFunc)m_lib.Resolve("FlowdockAddListenCallback");

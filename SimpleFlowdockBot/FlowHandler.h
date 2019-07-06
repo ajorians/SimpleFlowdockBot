@@ -30,6 +30,8 @@ protected:
    void HandleComment(int nUserId, int nThreadId, int nMessageId, const std::string& strComment);
    void HandleEmoji(int nUserId, int nThreadId, int nMessageId, const std::string& strEmoji, bool bAdded);
 
+   void AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags);
+
    FlowThread* GetFlowThread(int nThreadId);
    FlowThread* CreateFlowThread(int nThreadId);
 

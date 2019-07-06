@@ -19,6 +19,7 @@ public:
    bool StartListening(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword);
    bool Say(FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strMessage, const std::string& strTags, const std::string& strName = "Build_bot");
    bool Tag( FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nThreadID, const std::string& strTags );
+   bool AddEmojiReaction( FlowdockAPI pFlow, const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nMessageID, const std::string& strEmojiReaction );
    bool AddListen(FlowdockAPI pFlow, FlowMessageCallback cb, void* pUserData);
 
 protected:

@@ -136,6 +136,8 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
 
    PrintInformation( std::string("Message from: ") + strUserName + std::string( " said \"" ) + strMessage + "\"" );
 
+    AddEmojiReaction( strMessage, nUserID, nThreadID, nMessageID, astrAddedTags, astrRemovedTags);
+
    //Early return if seeing my message or ReviewBot
    if (strEMail == m_strUsername)
       return;
@@ -322,6 +324,24 @@ void FlowHandler::HandleEmoji(int nUserId, int nThreadId, int nMessageId, const 
       PrintInformation( std::string( "Emoji removed by: " ) + strUserName + std::string( " which is: \"" ) + strEmoji + std::string( "\"" ) );
       pFlowThread->RemoveEmoji(strUserName, nMessageId, strEmoji);
    }
+}
+
+void FlowHandler::AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags)
+{
+    bool addCake = false;
+
+    std::string lowerCaseMessage(strMessage);
+    std::transform(lowerCaseMessage.begin(), lowerCaseMessage.end(), lowerCaseMessage.begin(), ::tolower);
+
+    if( lowerCaseMessage.find("birthday") != std::string::npos )
+    {
+        addCake = true;
+    }
+
+    if( addCake )
+    {
+        FlowAPILibrary::instance().AddEmojiReaction(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, "cake");
+    }
 }
 
 FlowThread* FlowHandler::GetFlowThread(int nThreadId)
