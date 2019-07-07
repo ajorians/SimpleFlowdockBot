@@ -25,7 +25,7 @@
 
 FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword), m_strGithubToken( strGithubToken ),
-   m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags)
+   m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags), m_emojiReactionAdder(&m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
 
@@ -328,20 +328,7 @@ void FlowHandler::HandleEmoji(int nUserId, int nThreadId, int nMessageId, const 
 
 void FlowHandler::AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags)
 {
-    bool addCake = false;
-
-    std::string lowerCaseMessage(strMessage);
-    std::transform(lowerCaseMessage.begin(), lowerCaseMessage.end(), lowerCaseMessage.begin(), ::tolower);
-
-    if( lowerCaseMessage.find("birthday") != std::string::npos )
-    {
-        addCake = true;
-    }
-
-    if( addCake )
-    {
-        FlowAPILibrary::instance().AddEmojiReaction(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, "cake");
-    }
+    m_emojiReactionAdder.MessageSaid(strMessage, nUserID, nThreadId, nMessageID, astrAddedTags, astrRemovedTags);
 }
 
 FlowThread* FlowHandler::GetFlowThread(int nThreadId)
