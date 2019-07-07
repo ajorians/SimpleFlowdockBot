@@ -7,11 +7,32 @@
 #include <set>
 
 typedef std::vector<std::string> Phrases;
-typedef std::pair<Phrases, std::string> EmojiMatch;
+typedef std::vector<std::string> Emojis;
+typedef std::pair<Phrases, Emojis> EmojiMatch;
 static const std::vector<EmojiMatch> g_matches =
         {
-            EmojiMatch( Phrases{"birthday"}, "cake"),
-            EmojiMatch( Phrases{"haircut"}, "haircut")
+            EmojiMatch( Phrases{"birthday", "bday", "birth-day"}, Emojis{"cake", "gift", "balloon", "confetti_ball"}),
+            EmojiMatch( Phrases{"haircut"}, Emojis{"haircut", "barber"}),
+            EmojiMatch( Phrases{"tired", }, Emojis{"sleepy", "tired_face", "sleeping", "zzz"}),
+            EmojiMatch( Phrases{"question", }, Emojis{"question"}),
+            EmojiMatch( Phrases{"bank"}, Emojis{"atm", "heavy_dollar_sign", "dollar", "moneybag", "money_with_wings", "credit_card"}),
+            EmojiMatch( Phrases{"dentist", "dental"}, Emojis{"open_mouth", "mask", "grimacing", "sweat_smile", "cold_sweat", "fearful"}),
+            EmojiMatch( Phrases{"cedar point"}, Emojis{"roller_coaster", "ferris_wheel", "circus_tent"}),
+            EmojiMatch( Phrases{"construction"}, Emojis{"construction", "construction_worker", "truck"}),
+            EmojiMatch( Phrases{"raining"}, Emojis{"rainbow", "droplet", "cloud", "umbrella"}),
+            EmojiMatch( Phrases{"family"}, Emojis{"family"}),
+            EmojiMatch( Phrases{"running", "jogging", "5K"}, Emojis{"runner", "running"}),
+            EmojiMatch( Phrases{"dog", "puppy"}, Emojis{"dog", "paw_prints"}),
+            EmojiMatch( Phrases{"cat", "kitten"}, Emojis{"cat", "smiley_cat", "cat2", "octocat"}),
+            EmojiMatch( Phrases{"bathroom"}, Emojis{"wc", "restroom", "hankey", "toilet", "bath", "shower"}),
+            EmojiMatch( Phrases{"shower"}, Emojis{"wc", "restroom", "hankey", "toilet", "bath", "shower"}),
+            EmojiMatch( Phrases{"halloween", "pumpkin"}, Emojis{"jack_o_lantern", "ghost"}),
+            EmojiMatch( Phrases{"battery"}, Emojis{"battery", "electric_plug"}),
+            EmojiMatch( Phrases{"package"}, Emojis{"package", "money_with_wings"}),
+            EmojiMatch( Phrases{"baby"}, Emojis{"baby_symbol"}),
+            EmojiMatch( Phrases{"ship it"}, Emojis{"shipit"}),
+            EmojiMatch( Phrases{"postoffice", "post office", "post-office"}, Emojis{"post_office", "envelope", "mailbox_with_mail"}),
+            EmojiMatch( Phrases{"christmas", "xmas", "x-mas"}, Emojis{"gift", "santa", "christmas_tree", "package", "bell", "tada"}),
         };
 
 EmojiReactionAdder::EmojiReactionAdder(FlowdockAPI pFlowdock,
@@ -40,7 +61,9 @@ void EmojiReactionAdder::MessageSaid(const std::string& strMessage,
         {
             if( lowerCaseMessage.find(*itPhrases) != std::string::npos )
             {
-                emojiReactionsToAdd.insert( (*it).second );
+                for( auto itEmojis = (*it).second.cbegin(); itEmojis != (*it).second.cend(); itEmojis++) {
+                    emojiReactionsToAdd.insert( *itEmojis );
+                }
                 break;
             }
         }
