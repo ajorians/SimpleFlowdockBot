@@ -13,6 +13,7 @@
 
 #include "FlowRespondings.h"
 #include "FlowThread.h"
+#include "EmojiReactionAdder.h"
 
 class FlowHandler
 {
@@ -29,6 +30,8 @@ protected:
    void HandleTag(int nUserID, int nThreadId, int nMessageId, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags);
    void HandleComment(int nUserId, int nThreadId, int nMessageId, const std::string& strComment);
    void HandleEmoji(int nUserId, int nThreadId, int nMessageId, const std::string& strEmoji, bool bAdded);
+
+   void AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags);
 
    FlowThread* GetFlowThread(int nThreadId);
    FlowThread* CreateFlowThread(int nThreadId);
@@ -55,6 +58,8 @@ protected:
    int m_nFlowRespondingsFlags;
 
    std::vector<FlowThread> m_arrFlowThreads;
+
+   EmojiReactionAdder m_emojiReactionAdder;
 
 #ifdef USE_PTHREADS
    pthread_t m_thread;
