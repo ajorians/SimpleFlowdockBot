@@ -35,6 +35,13 @@ static const std::vector<EmojiMatch> g_matches =
             EmojiMatch( Phrases{"christmas", "xmas", "x-mas"}, Emojis{"gift", "santa", "christmas_tree", "package", "bell", "tada"}),
         };
 
+namespace {
+    bool IsPhraseSeparator(char ch)
+    {
+        return isspace(ch) || ispunct(ch);
+    }
+}
+
 EmojiReactionAdder::EmojiReactionAdder(FlowdockAPI pFlowdock,
         const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
         : m_pFlowdock( pFlowdock )
@@ -59,12 +66,44 @@ void EmojiReactionAdder::MessageSaid(const std::string& strMessage,
         const auto& phrases = (*it).first;
         for( auto itPhrases = phrases.cbegin(); itPhrases != phrases.cend(); itPhrases++ )
         {
-            if( lowerCaseMessage.find(*itPhrases) != std::string::npos )
+            int nPos = -1;
+            while( true )
             {
-                for( auto itEmojis = (*it).second.cbegin(); itEmojis != (*it).second.cend(); itEmojis++) {
-                    emojiReactionsToAdd.insert( *itEmojis );
+                const std::string& phrase = *itPhrases;
+                nPos = lowerCaseMessage.find( phrase, nPos + 1);
+                if ( nPos == std::string::npos )
+                    break;
+
+                //Does it have a space before or after (or any other punctuation)
+                bool isPhrase = false;
+                if( nPos == 0 ) {//Fist word
+                    if( IsPhraseSeparator(lowerCaseMessage[nPos + phrase.length()]) )//If something after this
+                    {
+                        isPhrase = true;
+                    }
                 }
-                break;
+                else if( nPos + phrase.length() == lowerCaseMessage.length()) {//Last word
+                    if( IsPhraseSeparator( lowerCaseMessage[nPos-1]))//If something before this
+                    {
+                        isPhrase = true;
+                    }
+                }
+                else
+                {
+                    if( (nPos + phrase.length()) < lowerCaseMessage.length()
+                    && IsPhraseSeparator(lowerCaseMessage[nPos-1])
+                    && IsPhraseSeparator(lowerCaseMessage[nPos + phrase.length()]) )
+                    {
+                        isPhrase = true;
+                    }
+                }
+
+                if( isPhrase )
+                {
+                    for( auto itEmojis = (*it).second.cbegin(); itEmojis != (*it).second.cend(); itEmojis++) {
+                        emojiReactionsToAdd.insert( *itEmojis );
+                    }
+                }
             }
         }
     }
