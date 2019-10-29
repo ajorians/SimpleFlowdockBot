@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 
 class EmojiReactionAdder
 {
@@ -19,6 +20,8 @@ protected:
     std::string m_strFlow;
     std::string m_strUsername;
     std::string m_strPassword;
+
+    std::ofstream m_Out;
 };
 
 #endif
