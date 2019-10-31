@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <limits>
 
 #ifndef WIN32
 #include <string.h>//?? TODO: Find out why including this?
@@ -23,6 +24,7 @@ int main(int argc, char *argv[])
 
    std::string strOrg, strFlow, strUser, strPassword, strGitHubToken;
    int nRespondings = RESPONDINGS_ALL;
+   int nEmojiResponseAmount = std::numeric_limits<int>::max();
    for (int i = 0; i < argc; i++)
    {
       std::string str = argv[i];
@@ -43,6 +45,9 @@ int main(int argc, char *argv[])
 
       if( str == "--githubtoken")
          strGitHubToken = argv[i+1];
+
+      if( str == "--emojireactionamount" )
+          nEmojiResponseAmount= atoi( argv[i+1]);
    }
    if (argc < 4 || strOrg.length() == 0 || strFlow.length() == 0 || strUser.length() == 0 || strPassword.length() == 0)
    {
@@ -50,7 +55,7 @@ int main(int argc, char *argv[])
       return 0;
    }
 
-   FlowHandler handler(strOrg, strFlow, strUser, strPassword, strGitHubToken, nRespondings);
+   FlowHandler handler(strOrg, strFlow, strUser, strPassword, strGitHubToken, nEmojiResponseAmount, nRespondings);
 
    while (true)
    {

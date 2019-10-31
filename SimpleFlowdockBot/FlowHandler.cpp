@@ -23,9 +23,9 @@
 #endif
 #endif
 
-FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
+FlowHandler::FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nEmojiReactionAmount, int nFlowRespondingsFlags /*= RESPONDINGS_ALL*/)
    : m_pFlowdock(NULL), m_strOrg(strOrg), m_strFlow(strFlow), m_strUsername(strUsername), m_strPassword(strPassword), m_strGithubToken( strGithubToken ),
-   m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags), m_emojiReactionAdder(&m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword)
+   m_SaysRemaining(40), m_bExit(false), m_nFlowRespondingsFlags(nFlowRespondingsFlags), m_nEmojiReactionAmount(nEmojiReactionAmount), m_emojiReactionAdder(&m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, m_nEmojiReactionAmount)
 {
    FlowAPILibrary::instance().Create(&m_pFlowdock);
 
@@ -136,7 +136,7 @@ void FlowHandler::HandleMessages(const std::string& strMessage, int nUserID, int
 
    PrintInformation( std::string("Message from: ") + strUserName + std::string( " said \"" ) + strMessage + "\"" );
 
-    AddEmojiReaction( strMessage, nUserID, nThreadID, nMessageID, astrAddedTags, astrRemovedTags);
+   AddEmojiReaction( strMessage, nUserID, nThreadID, nMessageID, astrAddedTags, astrRemovedTags, m_nEmojiReactionAmount );
 
    //Early return if seeing my message or ReviewBot
    if (strEMail == m_strUsername)
@@ -326,7 +326,7 @@ void FlowHandler::HandleEmoji(int nUserId, int nThreadId, int nMessageId, const 
    }
 }
 
-void FlowHandler::AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags)
+void FlowHandler::AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags, int nEmojiResponseAmount )
 {
     m_emojiReactionAdder.MessageSaid(strMessage, nUserID, nThreadId, nMessageID, astrAddedTags, astrRemovedTags);
 }

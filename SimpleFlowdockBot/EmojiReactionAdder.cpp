@@ -19,7 +19,7 @@ static const std::vector<EmojiMatch> g_matches =
             EmojiMatch( Phrases{"dentist", "dental"}, Emojis{"open_mouth", "mask", "grimacing", "sweat_smile", "cold_sweat", "fearful"}),
             EmojiMatch( Phrases{"cedar point"}, Emojis{"roller_coaster", "ferris_wheel", "circus_tent"}),
             EmojiMatch( Phrases{"construction"}, Emojis{"construction", "construction_worker", "truck"}),
-            EmojiMatch( Phrases{"raining"}, Emojis{"rainbow", "droplet", "cloud", "umbrella"}),
+            EmojiMatch( Phrases{"raining"}, Emojis{"umbrella", "rainbow", "droplet", "cloud"}),
             EmojiMatch( Phrases{"family"}, Emojis{"family"}),
             EmojiMatch( Phrases{"jogging", "5K"}, Emojis{"runner", "running"}),
             EmojiMatch( Phrases{"dog", "puppy"}, Emojis{"dog", "paw_prints"}),
@@ -32,7 +32,7 @@ static const std::vector<EmojiMatch> g_matches =
             EmojiMatch( Phrases{"baby"}, Emojis{"baby_symbol"}),
             EmojiMatch( Phrases{"ship it"}, Emojis{"shipit"}),
             EmojiMatch( Phrases{"postoffice", "post office", "post-office"}, Emojis{"post_office", "envelope", "mailbox_with_mail"}),
-            EmojiMatch( Phrases{"christmas", "xmas", "x-mas"}, Emojis{"gift", "santa", "christmas_tree", "package", "bell", "tada"}),
+            EmojiMatch( Phrases{"christmas", "xmas", "x-mas"}, Emojis{"santa", "gift", "christmas_tree", "package", "bell", "tada"}),
         };
 
 namespace {
@@ -43,12 +43,13 @@ namespace {
 }
 
 EmojiReactionAdder::EmojiReactionAdder(FlowdockAPI pFlowdock,
-        const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword)
+        const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, int nEmojiReactionAmount)
         : m_pFlowdock( pFlowdock )
         , m_strOrg( strOrg )
         , m_strFlow( strFlow )
         , m_strUsername( strUsername )
         , m_strPassword( strPassword )
+        , m_nEmojiReactionAmount( nEmojiReactionAmount )
 {
     std::string strFileName = "EmojiRections.log";
     m_Out.open(strFileName.c_str(), std::ios::app);
@@ -111,9 +112,14 @@ void EmojiReactionAdder::MessageSaid(const std::string& strMessage,
 
     if( emojiReactionsToAdd.size() > 0 )
     {
+        int nEmojisAdded = 0;
         std::string logMessage = m_strFlow + ": ";
         for( auto it = emojiReactionsToAdd.cbegin(); it!= emojiReactionsToAdd.cend(); it++)
         {
+            if( nEmojisAdded >= m_nEmojiReactionAmount)
+                break;
+
+            nEmojisAdded++;
             FlowAPILibrary::instance().AddEmojiReaction(m_pFlowdock, m_strOrg, m_strFlow, m_strUsername, m_strPassword, nMessageID, (*it).c_str() );
             logMessage += *it;
             logMessage += ", ";

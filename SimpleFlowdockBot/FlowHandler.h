@@ -18,7 +18,7 @@
 class FlowHandler
 {
 public:
-   FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nFlowRespondingsFlags = RESPONDINGS_ALL);
+   FlowHandler(const std::string& strOrg, const std::string& strFlow, const std::string& strUsername, const std::string& strPassword, const std::string& strGithubToken, int nEmojiReactionAmount, int nFlowRespondingsFlags = RESPONDINGS_ALL);
    ~FlowHandler();
 
 protected:
@@ -31,7 +31,7 @@ protected:
    void HandleComment(int nUserId, int nThreadId, int nMessageId, const std::string& strComment);
    void HandleEmoji(int nUserId, int nThreadId, int nMessageId, const std::string& strEmoji, bool bAdded);
 
-   void AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags);
+   void AddEmojiReaction(const std::string& strMessage, int nUserID, int nThreadId, int nMessageID, const std::vector<std::string>& astrAddedTags, const std::vector<std::string>& astrRemovedTags, int nEmojiResponseAmount );
 
    FlowThread* GetFlowThread(int nThreadId);
    FlowThread* CreateFlowThread(int nThreadId);
@@ -56,6 +56,7 @@ protected:
    bool m_bExit;
 
    int m_nFlowRespondingsFlags;
+   int m_nEmojiReactionAmount;
 
    std::vector<FlowThread> m_arrFlowThreads;
 
